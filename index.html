@@ -6,7 +6,155 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hockey IQ | Learn the Game</title>
 <style>
-:root {
+/* INTERACTIVE TACTICAL RINK */
+
+.tactics-app {
+  margin-bottom: 36px;
+}
+
+.tactics-heading {
+  margin-bottom: 20px;
+}
+
+.tactics-heading h2 {
+  margin-bottom: 8px;
+}
+
+.tactics-heading p,
+.tactics-step p,
+.tactics-player-info p,
+.tactics-lesson p {
+  line-height: 1.7;
+}
+
+.tactics-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin: 18px 0;
+}
+
+.tactics-controls select {
+  background: #162a43;
+  color: white;
+  border: 1px solid #54708c;
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 15px;
+  max-width: 100%;
+}
+
+.tactics-board {
+  background: #dceef5;
+  border: 4px solid #4a6880;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+#tacticsSvg {
+  width: 100%;
+  height: auto;
+  display: block;
+  touch-action: manipulation;
+}
+
+.tactics-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin: 14px 0;
+  font-size: 13px;
+}
+
+.tactics-playback {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 18px 0;
+}
+
+.tactics-playback button {
+  background: #24547b;
+  color: white;
+  border: 1px solid #618db1;
+  border-radius: 9px;
+  padding: 11px 16px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.tactics-playback button:hover {
+  background: #3476a5;
+}
+
+.tactics-playback button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.tactics-step,
+.tactics-player-info,
+.tactics-lesson {
+  background: #14283f;
+  border: 1px solid #34516e;
+  border-radius: 14px;
+  padding: 20px;
+  margin-top: 16px;
+}
+
+.tactics-step h3,
+.tactics-player-info h3,
+.tactics-lesson h3 {
+  margin: 10px 0;
+}
+
+.tactics-lesson h4 {
+  margin: 20px 0 6px;
+  color: #82c7ff;
+}
+
+#tacticStepCounter {
+  color: #8dd4ff;
+}
+
+.tactic-player {
+  cursor: pointer;
+}
+
+.tactic-player circle {
+  stroke: white;
+  stroke-width: 3;
+  transition: stroke-width 0.15s;
+}
+
+.tactic-player:hover circle,
+.tactic-player.selected circle {
+  stroke: #ffda57;
+  stroke-width: 6;
+}
+
+.tactic-player text {
+  fill: white;
+  font-size: 15px;
+  font-weight: 800;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+
+@media (max-width: 600px) {
+  .tactics-playback button {
+    flex: 1 1 40%;
+  }
+
+  .tactics-step,
+  .tactics-player-info,
+  .tactics-lesson {
+    padding: 15px;
+  }
+}
+  :root {
   --bg:#091321; --panel:#111f31; --panel2:#192b40;
   --line:#293d53; --blue:#70c7ff; --text:#f2f7fc;
   --muted:#9db0c5; --green:#71dfad;
@@ -293,6 +441,77 @@ footer { text-align:center; color:var(--muted); font-size:12px; margin-top:35px;
   </section>
 
   <section id="rink" class="view">
+  <div class="tactics-app">
+  <div class="tactics-heading">
+    <h2>🏒 Interactive Tactical Whiteboard</h2>
+    <p>
+      Explore real hockey systems, follow player movements,
+      and learn the decisions behind each play.
+    </p>
+  </div>
+
+  <div class="tactics-controls">
+    <label for="tacticSystem">Choose a hockey system</label>
+    <select id="tacticSystem">
+      <option value="forecheck122">1-2-2 Forecheck</option>
+      <option value="forecheck212">2-1-2 Forecheck</option>
+      <option value="defense">Defensive-Zone Coverage</option>
+      <option value="breakout">Defensive-Zone Breakout</option>
+      <option value="powerplay">Power-Play Umbrella</option>
+      <option value="rush">2-on-1 Offensive Rush</option>
+    </select>
+  </div>
+
+  <div class="tactics-board">
+    <svg
+      id="tacticsSvg"
+      viewBox="0 0 800 440"
+      role="img"
+      aria-label="Interactive hockey tactics rink"
+    ></svg>
+  </div>
+
+  <div class="tactics-legend">
+    <span>🔵 Attacking team</span>
+    <span>🔴 Defending team</span>
+    <span>⚫ Puck</span>
+    <span>➜ Movement or pass</span>
+  </div>
+
+  <div class="tactics-playback">
+    <button type="button" id="tacticPrev">← Previous</button>
+    <button type="button" id="tacticPlay">▶ Play</button>
+    <button type="button" id="tacticNext">Next →</button>
+    <button type="button" id="tacticReset">↺ Reset</button>
+  </div>
+
+  <div class="tactics-step">
+    <strong id="tacticStepCounter">Step 1</strong>
+    <h3 id="tacticStepTitle"></h3>
+    <p id="tacticStepExplanation"></p>
+  </div>
+
+  <div class="tactics-player-info">
+    <h3 id="tacticPlayerTitle">Select a player</h3>
+    <p id="tacticPlayerDescription">
+      Click a numbered player on the rink to learn their role.
+    </p>
+  </div>
+
+  <div class="tactics-lesson">
+    <h3 id="tacticLessonTitle"></h3>
+    <p id="tacticLessonPurpose"></p>
+
+    <h4>Why teams use it</h4>
+    <p id="tacticLessonStrength"></p>
+
+    <h4>Potential weakness</h4>
+    <p id="tacticLessonWeakness"></p>
+
+    <h4>What to watch for</h4>
+    <p id="tacticLessonWatch"></p>
+  </div>
+</div>
     <button class="btn back" onclick="showView('home')">← Dashboard</button>
     <div class="eyebrow">TACTICAL CLASSROOM</div>
     <h1>Explore the rink</h1>
@@ -1273,6 +1492,568 @@ function resetProgress() {
 }
 updateDashboard();
 renderTeams();
+/* =========================================
+   INTERACTIVE TACTICAL WHITEBOARD
+========================================= */
+
+const tacticSystems = {
+  forecheck122: {
+    title: "1-2-2 Forecheck",
+    purpose: "A structured forecheck with one forward pressuring the puck, two forwards supporting, and two defensemen maintaining a deeper safety layer.",
+    strength: "Balances pressure with defensive security. The supporting forwards can take away passing lanes while the defensemen protect against a breakout.",
+    weakness: "If the first forechecker is beaten and the supporting forwards are poorly positioned, the opponent may break out with speed.",
+    watch: "Watch how F1 influences the puck carrier's direction while F2 and F3 position themselves to intercept outlets.",
+    players: [
+      ["F1", "First forechecker: pressure the puck carrier and steer the breakout toward a less dangerous option."],
+      ["F2", "Supporting forward: anticipate the strong-side outlet and support F1."],
+      ["F3", "Supporting forward: protect the middle and weak-side passing options."],
+      ["D1", "Defenseman: maintain an appropriate gap and prepare to challenge a breakout."],
+      ["D2", "Defenseman: provide defensive balance and protect against a long pass."]
+    ],
+    steps: [
+      {
+        title: "Establish the 1-2-2",
+        explanation: "F1 approaches the puck carrier. F2 and F3 stay behind the first forechecker, while D1 and D2 maintain depth.",
+        p: [[565,220],[460,130],[460,310],[320,145],[320,295]],
+        opponents: [[690,215],[690,120],[620,340]],
+        puck: [690,215],
+        arrows: [[565,220,650,215]]
+      },
+      {
+        title: "Force a predictable breakout",
+        explanation: "F1 pressures from an angle. F2 moves toward the likely outlet, while F3 protects the middle of the ice.",
+        p: [[645,205],[565,140],[510,250],[370,150],[370,300]],
+        opponents: [[690,215],[690,120],[620,340]],
+        puck: [690,215],
+        arrows: [[565,220,645,205],[460,130,565,140],[460,310,510,250]]
+      },
+      {
+        title: "Support and contain",
+        explanation: "If the puck moves toward the boards, the supporting forward can challenge. The remaining players keep the formation connected.",
+        p: [[660,220],[630,125],[545,240],[425,145],[425,295]],
+        opponents: [[690,215],[650,120],[620,340]],
+        puck: [650,120],
+        arrows: [[690,215,650,120],[565,140,630,125]]
+      }
+    ]
+  },
+
+  forecheck212: {
+    title: "2-1-2 Forecheck",
+    purpose: "An aggressive forecheck that sends two forwards deep to pressure the puck, with a third forward providing support higher in the zone.",
+    strength: "Can force rushed decisions and create turnovers close to the opponent's net.",
+    weakness: "Aggressive pressure may leave space behind the first two forwards if the opponent makes a clean breakout pass.",
+    watch: "Look for F1 and F2 attacking different escape options, rather than chasing the same player.",
+    players: [
+      ["F1", "First forechecker: attack the puck carrier and take away time."],
+      ["F2", "Second forechecker: pressure the nearby outlet or support a puck battle."],
+      ["F3", "High forward: remain available to intercept passes and provide defensive balance."],
+      ["D1", "Defenseman: control the gap and support the forecheck when safe."],
+      ["D2", "Defenseman: protect the opposite side and prevent odd-man rushes."]
+    ],
+    steps: [
+      {
+        title: "Two forwards attack",
+        explanation: "F1 closes on the puck carrier. F2 moves toward the other side of the zone to limit easy escape routes.",
+        p: [[590,160],[590,290],[440,220],[315,140],[315,300]],
+        opponents: [[690,155],[690,290],[625,225]],
+        puck: [690,155],
+        arrows: [[590,160,660,155],[590,290,660,290]]
+      },
+      {
+        title: "Cut off the outlets",
+        explanation: "F1 pressures the puck while F2 anticipates the next pass. F3 remains above them to support either side.",
+        p: [[655,155],[650,280],[500,220],[360,145],[360,295]],
+        opponents: [[690,155],[690,290],[625,225]],
+        puck: [690,155],
+        arrows: [[590,160,655,155],[590,290,650,280]]
+      },
+      {
+        title: "React to the pass",
+        explanation: "If the puck moves to the other side, F2 becomes the immediate pressure player. F1 can recover into a supporting position.",
+        p: [[615,205],[675,280],[525,220],[405,145],[405,295]],
+        opponents: [[690,155],[690,290],[625,225]],
+        puck: [690,290],
+        arrows: [[690,155,690,290],[650,280,675,280]]
+      }
+    ]
+  },
+
+  defense: {
+    title: "Defensive-Zone Coverage",
+    purpose: "Protect the middle of the ice, challenge dangerous puck movement, and prevent opponents from getting uncontested chances near the net.",
+    strength: "Good positioning protects the slot and allows defenders to support each other.",
+    weakness: "Overcommitting to the puck can leave opponents open in the slot or on the weak side.",
+    watch: "Notice how the closest defender pressures the puck while teammates protect passing lanes and dangerous scoring areas.",
+    players: [
+      ["C", "Center: support low in the zone and help protect the slot."],
+      ["LW", "Left wing: cover the appropriate point or high-side passing option."],
+      ["RW", "Right wing: monitor the opposite high-side threat and provide support."],
+      ["LD", "Left defenseman: defend the net-front and low-zone threats."],
+      ["RD", "Right defenseman: challenge the puck when responsible and protect nearby opponents."]
+    ],
+    steps: [
+      {
+        title: "Protect the dangerous middle",
+        explanation: "The defending team organizes around the slot while keeping an eye on the puck along the boards.",
+        p: [[575,220],[455,120],[455,320],[650,190],[660,285]],
+        opponents: [[690,330],[550,110],[555,330]],
+        puck: [690,330],
+        arrows: [[660,285,685,320]]
+      },
+      {
+        title: "Pressure without abandoning the slot",
+        explanation: "The nearest defender closes the gap. The center supports below, while the other players remain aware of open opponents.",
+        p: [[605,250],[500,125],[485,305],[660,190],[680,315]],
+        opponents: [[690,330],[550,110],[555,330]],
+        puck: [690,330],
+        arrows: [[575,220,605,250],[660,285,680,315]]
+      },
+      {
+        title: "Respond to a pass",
+        explanation: "As the puck moves high, coverage shifts. The defending team must adjust without allowing an unmarked attacker in the slot.",
+        p: [[575,215],[530,125],[490,280],[650,195],[645,280]],
+        opponents: [[690,330],[550,110],[555,330]],
+        puck: [550,110],
+        arrows: [[690,330,550,110],[500,125,530,125]]
+      }
+    ]
+  },
+
+  breakout: {
+    title: "Defensive-Zone Breakout",
+    purpose: "Move the puck out of the defensive zone with possession while providing multiple passing options.",
+    strength: "Good spacing and support help the puck carrier escape pressure and create a controlled transition.",
+    weakness: "A risky pass through the middle or a poorly timed outlet can create a dangerous turnover.",
+    watch: "Pay attention to the supporting defenseman, the low center, and the wingers preparing to receive the puck.",
+    players: [
+      ["D1", "Retrieving defenseman: collect the puck, scan for pressure, and choose an outlet."],
+      ["D2", "Supporting defenseman: offer a reverse or partner passing option."],
+      ["C", "Center: provide a low, central support option and help the breakout connect."],
+      ["LW", "Left wing: get available along the boards or move into open space."],
+      ["RW", "Right wing: offer an outlet on the opposite side and prepare to advance."]
+    ],
+    steps: [
+      {
+        title: "Retrieve and scan",
+        explanation: "D1 retrieves the puck and checks for pressure. D2 and the center make themselves available as passing options.",
+        p: [[150,305],[185,150],[285,230],[365,115],[365,325]],
+        opponents: [[245,335],[430,220]],
+        puck: [150,305],
+        arrows: [[150,305,285,230]]
+      },
+      {
+        title: "Find the support player",
+        explanation: "The puck moves to the center, who can turn up ice if space is available. The wingers stretch the breakout.",
+        p: [[175,290],[205,155],[320,225],[420,115],[420,325]],
+        opponents: [[245,335],[430,220]],
+        puck: [320,225],
+        arrows: [[150,305,320,225]]
+      },
+      {
+        title: "Exit with possession",
+        explanation: "The center sends the puck to an available winger. Other players move up ice to support the next pass.",
+        p: [[265,280],[265,150],[445,220],[535,115],[530,325]],
+        opponents: [[300,335],[485,240]],
+        puck: [535,115],
+        arrows: [[320,225,535,115],[420,115,535,115]]
+      }
+    ]
+  },
+
+  powerplay: {
+    title: "Power-Play Umbrella",
+    purpose: "Use an extra skater to spread the penalty killers, move the puck, and create a high-quality scoring opportunity.",
+    strength: "Puck movement across the formation can open shooting lanes and force the penalty killers to shift.",
+    weakness: "Slow passing, predictable movement, or a turnover high in the zone can lead to a shorthanded rush.",
+    watch: "Watch for a penalty killer committing to the puck and the offense exploiting the space that opens elsewhere.",
+    players: [
+      ["QB", "Quarterback: control the puck high in the zone and distribute it to shooting options."],
+      ["L", "Left flank: offer a passing or one-timer option."],
+      ["R", "Right flank: provide a shooting threat and help move defenders laterally."],
+      ["B", "Bumper: find soft spots between defenders in the middle."],
+      ["N", "Net-front player: screen the goalie, look for tips, and battle for rebounds."]
+    ],
+    steps: [
+      {
+        title: "Set up the umbrella",
+        explanation: "The quarterback stays high, two flank players provide wide options, the bumper occupies the middle, and one player works near the net.",
+        p: [[470,220],[565,110],[565,330],[620,220],[715,220]],
+        opponents: [[600,155],[600,285],[680,175],[680,265]],
+        puck: [470,220],
+        arrows: [[470,220,565,110],[470,220,565,330]]
+      },
+      {
+        title: "Shift the penalty killers",
+        explanation: "The puck moves to the left flank. The penalty killers shift toward that side, potentially creating space elsewhere.",
+        p: [[480,220],[575,115],[570,325],[630,220],[715,220]],
+        opponents: [[600,135],[615,255],[680,175],[680,265]],
+        puck: [575,115],
+        arrows: [[470,220,575,115]]
+      },
+      {
+        title: "Attack the opening",
+        explanation: "A quick pass toward the middle can create a shooting opportunity if the lane is open. The net-front player is ready for a tip or rebound.",
+        p: [[480,220],[575,115],[570,325],[635,215],[715,220]],
+        opponents: [[600,135],[615,255],[680,175],[680,265]],
+        puck: [635,215],
+        arrows: [[575,115,635,215],[635,215,775,220]]
+      }
+    ]
+  },
+
+  rush: {
+    title: "2-on-1 Offensive Rush",
+    purpose: "Two attackers challenge one defender, trying to force a decision that opens a shot or passing lane.",
+    strength: "The attackers can create an excellent scoring opportunity if they maintain separation and time the pass correctly.",
+    weakness: "A premature pass, poor spacing, or holding the puck too long can allow the defender to disrupt the play.",
+    watch: "Watch the defender's stick and body positioning. The puck carrier should read whether the shot or pass is more available.",
+    players: [
+      ["A1", "Puck carrier: threaten to shoot while reading the defender's position."],
+      ["A2", "Supporting attacker: stay available as a passing option and prepare for a quick shot."]
+    ],
+    steps: [
+      {
+        title: "Create two threats",
+        explanation: "The puck carrier attacks with speed. The second attacker stays wide enough to make the defender protect both options.",
+        p: [[300,155],[310,295]],
+        opponents: [[540,220]],
+        puck: [300,155],
+        arrows: [[300,155,440,155],[310,295,450,295]]
+      },
+      {
+        title: "Force the defender to decide",
+        explanation: "The puck carrier moves into shooting range. The defender must manage the shot threat while keeping the passing lane in mind.",
+        p: [[470,165],[475,290]],
+        opponents: [[565,210]],
+        puck: [470,165],
+        arrows: [[470,165,610,165],[470,165,475,290]]
+      },
+      {
+        title: "Make the read",
+        explanation: "In this example, the defender leans toward the puck carrier, leaving a passing opportunity. If the defender instead takes away the pass, a shot may be better.",
+        p: [[590,170],[630,285]],
+        opponents: [[635,195]],
+        puck: [630,285],
+        arrows: [[590,170,630,285],[630,285,775,220]]
+      }
+    ]
+  }
+};
+
+/* Whiteboard state */
+
+let tacticCurrentSystem = "forecheck122";
+let tacticCurrentStep = 0;
+let tacticSelectedPlayer = null;
+let tacticTimer = null;
+
+/* SVG utilities */
+
+function tacticEscape(value) {
+  return String(value).replace(/[&<>"']/g, char => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  })[char]);
+}
+
+function tacticRinkBackground() {
+  return `
+    <defs>
+      <marker id="tacticArrowhead"
+        markerWidth="8" markerHeight="8"
+        refX="6" refY="3"
+        orient="auto">
+        <path d="M0,0 L6,3 L0,6 Z" fill="#e9a527"/>
+      </marker>
+    </defs>
+
+    <rect x="12" y="12" width="776" height="416"
+      rx="72" fill="#edf8fc"
+      stroke="#183b60" stroke-width="5"/>
+
+    <line x1="400" y1="14" x2="400" y2="426"
+      stroke="#d44545" stroke-width="5"/>
+
+    <line x1="260" y1="14" x2="260" y2="426"
+      stroke="#327bc0" stroke-width="5"/>
+
+    <line x1="540" y1="14" x2="540" y2="426"
+      stroke="#327bc0" stroke-width="5"/>
+
+    <line x1="95" y1="65" x2="95" y2="375"
+      stroke="#d44545" stroke-width="3"/>
+
+    <line x1="705" y1="65" x2="705" y2="375"
+      stroke="#d44545" stroke-width="3"/>
+
+    <circle cx="400" cy="220" r="49"
+      fill="none" stroke="#327bc0" stroke-width="3"/>
+
+    <circle cx="170" cy="135" r="34"
+      fill="none" stroke="#d44545" stroke-width="2"/>
+
+    <circle cx="170" cy="305" r="34"
+      fill="none" stroke="#d44545" stroke-width="2"/>
+
+    <circle cx="630" cy="135" r="34"
+      fill="none" stroke="#d44545" stroke-width="2"/>
+
+    <circle cx="630" cy="305" r="34"
+      fill="none" stroke="#d44545" stroke-width="2"/>
+
+    <rect x="20" y="190" width="24" height="60"
+      rx="5" fill="none" stroke="#c32b36" stroke-width="5"/>
+
+    <rect x="756" y="190" width="24" height="60"
+      rx="5" fill="none" stroke="#c32b36" stroke-width="5"/>
+
+    <text x="400" y="36" text-anchor="middle"
+      font-size="13" fill="#315575">
+      Simplified tactical positions • not to scale
+    </text>
+  `;
+}
+
+function tacticDrawArrow(x1, y1, x2, y2) {
+  return `
+    <line
+      x1="${x1}" y1="${y1}"
+      x2="${x2}" y2="${y2}"
+      stroke="#e9a527"
+      stroke-width="5"
+      stroke-linecap="round"
+      stroke-dasharray="10 7"
+      marker-end="url(#tacticArrowhead)"
+    />
+  `;
+}
+
+function tacticDrawPlayer(x, y, label, index, opponent = false) {
+  const selected = !opponent && tacticSelectedPlayer === index;
+
+  return `
+    <g class="${opponent ? "" : "tactic-player"} ${selected ? "selected" : ""}"
+       ${opponent ? "" : `data-tactic-player="${index}"`}
+       transform="translate(${x},${y})"
+       ${opponent ? "" : 'tabindex="0" role="button"'}
+       aria-label="${opponent ? "Opponent" : "Player " + tacticEscape(label)}">
+      <circle r="21"
+        fill="${opponent ? "#c83d48" : "#1675c7"}"
+        stroke="white"
+        stroke-width="3"/>
+      <text y="1" text-anchor="middle"
+        dominant-baseline="central"
+        fill="white" font-size="13" font-weight="bold">
+        ${tacticEscape(label)}
+      </text>
+    </g>
+  `;
+}
+
+/* Render the rink */
+
+function tacticRender() {
+  const system = tacticSystems[tacticCurrentSystem];
+  const step = system.steps[tacticCurrentStep];
+  const svg = document.getElementById("tacticsSvg");
+
+  if (!svg) return;
+
+  let markup = tacticRinkBackground();
+
+  step.arrows.forEach(arrow => {
+    markup += tacticDrawArrow(...arrow);
+  });
+
+  step.opponents.forEach((position, index) => {
+    markup += tacticDrawPlayer(
+      position[0], position[1], "X" + (index + 1), index, true
+    );
+  });
+
+  step.p.forEach((position, index) => {
+    markup += tacticDrawPlayer(
+      position[0],
+      position[1],
+      system.players[index][0],
+      index
+    );
+  });
+
+  markup += `
+    <circle cx="${step.puck[0]}" cy="${step.puck[1]}"
+      r="8" fill="#111820" stroke="white" stroke-width="2"/>
+  `;
+
+  svg.innerHTML = markup;
+
+  document.getElementById("tacticStepCounter").textContent =
+    `Step ${tacticCurrentStep + 1} of ${system.steps.length}`;
+
+  document.getElementById("tacticStepTitle").textContent = step.title;
+  document.getElementById("tacticStepExplanation").textContent =
+    step.explanation;
+
+  document.getElementById("tacticLessonTitle").textContent = system.title;
+  document.getElementById("tacticLessonPurpose").textContent =
+    system.purpose;
+  document.getElementById("tacticLessonStrength").textContent =
+    system.strength;
+  document.getElementById("tacticLessonWeakness").textContent =
+    system.weakness;
+  document.getElementById("tacticLessonWatch").textContent =
+    system.watch;
+
+  document.getElementById("tacticPrev").disabled =
+    tacticCurrentStep === 0;
+
+  document.getElementById("tacticNext").disabled =
+    tacticCurrentStep === system.steps.length - 1;
+
+  if (tacticSelectedPlayer !== null) {
+    tacticShowPlayer(tacticSelectedPlayer, false);
+  }
+
+  svg.querySelectorAll("[data-tactic-player]").forEach(element => {
+    const index = Number(element.dataset.tacticPlayer);
+
+    element.addEventListener("click", () => {
+      tacticShowPlayer(index);
+    });
+
+    element.addEventListener("keydown", event => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        tacticShowPlayer(index);
+      }
+    });
+  });
+}
+
+/* Click a player to learn their role */
+
+function tacticShowPlayer(index, rerender = true) {
+  const player = tacticSystems[tacticCurrentSystem].players[index];
+
+  if (!player) return;
+
+  tacticSelectedPlayer = index;
+
+  document.getElementById("tacticPlayerTitle").textContent =
+    `${player[0]} — Player Responsibility`;
+
+  document.getElementById("tacticPlayerDescription").textContent =
+    player[1];
+
+  if (rerender) tacticRender();
+}
+
+/* Playback */
+
+function tacticStop() {
+  if (tacticTimer !== null) {
+    clearInterval(tacticTimer);
+    tacticTimer = null;
+  }
+
+  const playButton = document.getElementById("tacticPlay");
+  if (playButton) playButton.textContent = "▶ Play";
+}
+
+function tacticNextStep() {
+  const total = tacticSystems[tacticCurrentSystem].steps.length;
+
+  if (tacticCurrentStep < total - 1) {
+    tacticCurrentStep++;
+    tacticRender();
+    return true;
+  }
+
+  return false;
+}
+
+function tacticChangeSystem(systemId) {
+  if (!tacticSystems[systemId]) return;
+
+  tacticStop();
+  tacticCurrentSystem = systemId;
+  tacticCurrentStep = 0;
+  tacticSelectedPlayer = null;
+
+  document.getElementById("tacticPlayerTitle").textContent =
+    "Select a player";
+
+  document.getElementById("tacticPlayerDescription").textContent =
+    "Click a numbered player on the rink to learn their role.";
+
+  tacticRender();
+}
+
+/* Initialize controls */
+
+function tacticInitialize() {
+  const selector = document.getElementById("tacticSystem");
+
+  if (!selector) return;
+
+  selector.addEventListener("change", () => {
+    tacticChangeSystem(selector.value);
+  });
+
+  document.getElementById("tacticPrev").addEventListener("click", () => {
+    tacticStop();
+
+    if (tacticCurrentStep > 0) {
+      tacticCurrentStep--;
+      tacticRender();
+    }
+  });
+
+  document.getElementById("tacticNext").addEventListener("click", () => {
+    tacticStop();
+    tacticNextStep();
+  });
+
+  document.getElementById("tacticReset").addEventListener("click", () => {
+    tacticStop();
+    tacticCurrentStep = 0;
+    tacticRender();
+  });
+
+  document.getElementById("tacticPlay").addEventListener("click", () => {
+    if (tacticTimer !== null) {
+      tacticStop();
+      return;
+    }
+
+    const total = tacticSystems[tacticCurrentSystem].steps.length;
+
+    if (tacticCurrentStep >= total - 1) {
+      tacticCurrentStep = 0;
+      tacticRender();
+    }
+
+    document.getElementById("tacticPlay").textContent = "⏸ Pause";
+
+    tacticTimer = setInterval(() => {
+      if (!tacticNextStep()) {
+        tacticStop();
+      }
+    }, 2200);
+  });
+
+  tacticRender();
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", tacticInitialize);
+} else {
+  tacticInitialize();
+}
 </script>
 </body>
 </html>
