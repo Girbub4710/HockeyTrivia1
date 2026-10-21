@@ -125,6 +125,95 @@ footer { text-align:center; color:var(--muted); font-size:12px; margin-top:35px;
   .question { font-size:19px; }
 }
 @media(max-width:390px) { .grid { grid-template-columns:1fr; } }
+
+/* HOCKEY LEARNING CENTER */
+.lesson-toolbar {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
+  margin:18px 0;
+}
+.lesson-card {
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:18px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.lesson-card:hover { border-color:var(--blue); }
+.lesson-card p { color:var(--muted); font-size:13px; }
+.lesson-card .btn { margin-top:auto; }
+.lesson-meta {
+  color:var(--blue);
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:1px;
+  text-transform:uppercase;
+}
+.lesson-check {
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:17px;
+  margin-top:18px;
+  background:#0c1929;
+}
+.lesson-section {
+  padding:15px 0;
+  border-bottom:1px solid var(--line);
+}
+.lesson-section:last-child { border-bottom:0; }
+.lesson-section p { color:#c4d3e2; }
+.lesson-section li { margin:7px 0; color:#c4d3e2; }
+.lesson-callout {
+  padding:15px;
+  border-left:3px solid var(--blue);
+  background:#12283b;
+  border-radius:0 10px 10px 0;
+  margin:15px 0;
+}
+.lesson-callout p { margin-bottom:0; }
+.lesson-option {
+  display:block;
+  width:100%;
+  text-align:left;
+  background:#142438;
+  border:1px solid #324960;
+  color:var(--text);
+  padding:13px 15px;
+  border-radius:10px;
+  margin-top:9px;
+}
+.lesson-option:hover { border-color:var(--blue); }
+.lesson-option.correct {
+  border-color:var(--green);
+  background:#12362f;
+}
+.lesson-option.wrong {
+  border-color:#ff8d91;
+  background:#40232d;
+}
+.lesson-option:disabled { cursor:default; }
+.lesson-complete {
+  display:inline-block;
+  color:var(--green);
+  font-size:12px;
+  font-weight:800;
+}
+.lesson-reading {
+  max-width:850px;
+  margin:0 auto;
+}
+.lesson-reading h2 { margin-top:25px; }
+.lesson-reading h3 { margin-top:12px; }
+.lesson-reading .question { font-size:19px; }
+@media(max-width:720px) {
+  .lesson-card { padding:14px; }
+  .lesson-reading .question { font-size:17px; }
+}
 </style>
 </head>
 <body>
@@ -159,6 +248,9 @@ footer { text-align:center; color:var(--muted); font-size:12px; margin-top:35px;
       <div class="card mode" onclick="showView('teams')"><div class="mode-icon">🛡️</div><h3>Team Explorer</h3><p>Explore all 32 NHL teams and their divisions and arenas.</p></div>
       <div class="card mode" onclick="startQuiz('iq')"><div class="mode-icon">🧠</div><h3>Hockey IQ Challenges</h3><p>Read a game situation and decide what a player should do.</p></div>
       <div class="card mode" onclick="startQuiz('daily')"><div class="mode-icon">📅</div><h3>Daily Challenge</h3><p>Ten questions across categories, with points and a daily streak.</p></div>
+<div class="card mode" onclick="showView('lessons')">  <div class="mode-icon">📚</div> <h3>Hockey Learning Center</h3> <p>Study advanced tactics, learn player responsibilities, and test your understanding with guided lessons.</p>
+</div>
+
     </div>
     <div class="section-head"><div><div class="eyebrow">KEEP IMPROVING</div><h2>Your progress</h2></div></div>
     <div class="card">
@@ -258,6 +350,38 @@ footer { text-align:center; color:var(--muted); font-size:12px; margin-top:35px;
     </div>
     <p class="muted">Team information is starter content. Check official NHL sources for recent roster, arena-name or branding changes.</p>
   </section>
+  
+<section id="lessons" class="view">
+  <button class="btn back" onclick="showView('home')">← Dashboard</button>
+
+  <div id="lessonLibrary">
+    <div class="eyebrow">HOCKEY IQ CURRICULUM</div>
+    <h1>Learn the game deeper.</h1>
+    <p class="muted">Study the system, understand each player's job, then apply what you've learned. Complete lessons to earn XP.</p>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;gap:10px;margin-bottom:9px">
+        <b>Your learning progress</b>
+        <span id="lessonProgressText" class="muted">0 of 6 complete</span>
+      </div>
+      <div class="progress"><div id="lessonProgressBar"></div></div>
+      <p class="muted" style="margin-top:10px">Finishing a lesson earns 25 XP. Correct lesson-check answers earn 10 XP the first time you get each lesson's question right.</p>
+    </div>
+
+    <div class="lesson-toolbar">
+      <h2>Advanced courses</h2>
+      <span class="pill">FOUNDATIONS → EXPERT</span>
+    </div>
+
+    <div id="lessonGrid" class="grid"></div>
+  </div>
+
+  <div id="lessonDetail" style="display:none">
+    <button class="btn back" onclick="backToLessons()">← All lessons</button>
+    <div id="lessonContent" class="card lesson-reading"></div>
+  </div>
+</section>
+
 </main>
 <footer>HOCKEY IQ · Learn a little more about the game every day.</footer>
 
@@ -318,6 +442,402 @@ general:[
 ]
 };
 
+const lessons = [
+  {
+    id:"forecheck",
+    title:"Forechecking Systems",
+    level:"Advanced",
+    duration:"8–10 min",
+    summary:"Understand pressure, support, containment, and how a forecheck forces a predictable breakout.",
+    objectives:[
+      "Distinguish the 1-2-2 and 2-1-2 structures.",
+      "Explain the difference between the first forechecker and the supporting forwards.",
+      "Recognize when aggressive pressure creates risk."
+    ],
+    sections:[
+      {
+        title:"1. What a forecheck is trying to accomplish",
+        body:"A forecheck is the pressure a team applies after the opponent gains possession in its defensive zone. It is not simply chasing the puck. A coordinated forecheck tries to take away the opponent's time and preferred passing options, steer the puck toward a predictable area, and create a turnover.",
+        bullets:[
+          "Pressure: force the puck carrier to make a decision quickly.",
+          "Support: position teammates to challenge the next pass or recover a loose puck.",
+          "Containment: prevent the opponent from escaping through an easy route.",
+          "Risk management: keep enough players behind the pressure to defend a counterattack."
+        ]
+      },
+      {
+        title:"2. The 1-2-2 forecheck",
+        body:"In a common 1-2-2 structure, one forward pressures the puck while two forwards provide the next layer of support. Two defensemen remain deeper as the safety layer. The exact shape changes with puck location and team philosophy.",
+        bullets:[
+          "F1: angles the puck carrier toward a chosen side and tries to remove the easiest exit.",
+          "F2 and F3: read the puck carrier and nearby outlets; one may challenge a pass while the other protects the next lane.",
+          "D1 and D2: hold appropriate depth, read the play, and guard against a pass or carry that beats the forwards."
+        ]
+      },
+      {
+        title:"3. The 2-1-2 forecheck",
+        body:"A 2-1-2 uses two forwards higher in the pressure, one forward supporting underneath, and two defensemen behind the play. It can create more immediate pressure, but it can also expose space if the first two forwards are beaten.",
+        bullets:[
+          "The first two forwards coordinate their angles rather than attacking independently.",
+          "The third forward reads where the puck is likely to go next.",
+          "The defensemen must recognize when they can hold the line and when they need to retreat."
+        ]
+      },
+      {
+        title:"4. How to read the system while watching",
+        body:"Do not identify a forecheck from one frozen snapshot alone. Watch the forwards as the puck moves from one side of the rink to the other. Their routes, spacing, and recovery positions reveal the team's structure.",
+        bullets:[
+          "Where does the first forward approach from?",
+          "Does the second forward attack the puck or take away a passing lane?",
+          "How far apart are the supporting forwards?",
+          "If the opponent beats the pressure, which players are protecting the middle?"
+        ]
+      }
+    ],
+    takeaway:"A forecheck is a coordinated pressure system. The objective is not for everyone to chase the puck; it is to make the opponent's next options harder while maintaining defensive support.",
+    mistake:"A common mistake is sending multiple players toward the puck without accounting for the space they leave behind. Pressure that has no support can turn into an odd-man rush against.",
+    watch:"On your next NHL broadcast, follow the two forwards who do not have the puck. Notice whether they close a passing lane, support the first forechecker, or retreat to protect against a counterattack.",
+    question:"Your team is using a conservative 1-2-2. F1 angles the puck carrier toward the boards. What should the supporting forwards prioritize?",
+    options:[
+      "Both sprint directly at the puck, leaving the middle open.",
+      "Read the likely outlet, pressure or deny passing options, and preserve support behind the first challenge.",
+      "Immediately skate behind the opponent's net regardless of the puck.",
+      "All five skaters retreat to their own goal line."
+    ],
+    answer:1,
+    explanation:"The supporting forwards make F1's pressure useful by anticipating the outlet and limiting the opponent's next pass. Their exact routes depend on the puck side and team rules, but coordinated support matters more than simply adding more players to the puck."
+  },
+  {
+    id:"breakouts",
+    title:"Defensive-Zone Breakouts",
+    level:"Advanced",
+    duration:"8–10 min",
+    summary:"Learn how teams move the puck from retrieval to controlled possession through support, timing, and passing options.",
+    objectives:[
+      "Identify the first, second, and weak-side breakout options.",
+      "Understand why shoulder checks and body position matter.",
+      "Compare a controlled breakout with a pressure-relief play."
+    ],
+    sections:[
+      {
+        title:"1. A breakout is a sequence, not just a pass",
+        body:"A breakout starts when a team retrieves or gains control of the puck in its defensive zone. The goal is to move the puck out with enough control and support to begin an attack. The best option depends on forecheck pressure, teammate spacing, the boards, and available time.",
+        bullets:[
+          "Retrieve: locate the puck and scan for pressure before committing.",
+          "Support: teammates create nearby passing options and safe routes.",
+          "Advance: move the puck through the neutral zone with possession when possible.",
+          "Regroup or relieve: if pressure removes the safe options, reset or send the puck to a safer area."
+        ]
+      },
+      {
+        title:"2. The puck-retrieving defenseman",
+        body:"A defenseman retrieving a dump-in should scan early, establish body position, and read the forechecker's approach angle. The first option is not always the same pass. A forechecker coming directly from behind creates a different problem than one sealing the boards.",
+        bullets:[
+          "Shoulder checks help reveal pressure and support before the puck arrives.",
+          "A quick pass can beat pressure before it is fully established.",
+          "A controlled turn or escape route can create a new passing angle.",
+          "Holding the puck too long can allow the forecheck to close every outlet."
+        ]
+      },
+      {
+        title:"3. Common support options",
+        body:"A center may curl low to provide a short outlet. A winger may position along the boards for a pass up the wall. The weak-side defenseman can provide a reversal or a second route if the first side is sealed.",
+        bullets:[
+          "Short support reduces the distance the pass must travel.",
+          "A wall option can be useful, but a winger needs to know whether pressure is arriving from above or below.",
+          "A reversal can exploit an overcommitted forecheck, provided the receiving player has time and a safe lane.",
+          "A stretch pass may bypass pressure, but it is riskier when the receiver is covered or the lane is contested."
+        ]
+      },
+      {
+        title:"4. Controlled exit versus relief",
+        body:"A controlled exit attempts to retain possession and enter the neutral zone in a useful formation. A relief play prioritizes getting the puck away from immediate danger. Neither choice is always correct: the decision depends on pressure, score, time, fatigue, and available support.",
+        bullets:[
+          "If a teammate is open and the lane is clear, a controlled pass may be best.",
+          "If pressure has removed safe options, a board play or clear may be necessary.",
+          "A hopeful pass through the middle of the defensive zone can be dangerous when the lane is crowded."
+        ]
+      }
+    ],
+    takeaway:"Good breakouts combine scanning, spacing, timing, and an appropriate risk decision. A safe outlet is only useful if the receiver is prepared and the next play is supported.",
+    mistake:"Do not assume that passing up the boards is always safe or that a long pass is always a bad choice. The pressure and available lanes determine the best read.",
+    watch:"When a defenseman retrieves the puck, pause your attention on the center and weak-side defenseman. Watch how their movement changes the options available to the puck carrier.",
+    question:"A defenseman retrieves the puck and sees the opposing forecheckers overcommit to the strong side. The weak-side defenseman is open and has time. Which option may exploit the pressure?",
+    options:[
+      "Force the puck into the crowded strong-side lane every time.",
+      "Reverse the puck to the weak-side defenseman if the passing lane is clear and the receiver is ready.",
+      "Throw the puck into the middle without checking for opponents.",
+      "Ignore every teammate and hold the puck until pressure arrives."
+    ],
+    answer:1,
+    explanation:"A reversal can take advantage of a forecheck that has shifted too far to one side. It is not automatic: the passer must confirm the lane is clear and the receiving defenseman has enough time to make the next play."
+  },
+  {
+    id:"coverage",
+    title:"Defensive-Zone Coverage",
+    level:"Advanced",
+    duration:"8–10 min",
+    summary:"Understand defensive layers, slot protection, passing-lane responsibility, and communication during switches.",
+    objectives:[
+      "Explain why teams protect the middle of the ice.",
+      "Distinguish puck pressure from coverage away from the puck.",
+      "Recognize when defenders need to switch responsibilities."
+    ],
+    sections:[
+      {
+        title:"1. The defensive priority",
+        body:"Defensive-zone coverage aims to reduce the opponent's best scoring opportunities while recovering possession. Teams need to pressure the puck without allowing uncovered players or dangerous passing lanes in the middle. Exact responsibilities depend on the team's system and the puck location.",
+        bullets:[
+          "Protect the slot and the area directly in front of the net.",
+          "Pressure the puck carrier when the nearest defender can do so without opening a more dangerous lane.",
+          "Keep sticks and bodies between opponents and high-value scoring areas when possible.",
+          "Communicate when opponents cross paths or enter another player's coverage."
+        ]
+      },
+      {
+        title:"2. Puck pressure and off-puck support",
+        body:"The defender nearest the puck may challenge the carrier. Teammates must read that challenge: one may protect a passing option, another may cover the net-front area, and another may remain alert to a high attacker or a switch. If everyone follows the puck, the offense can create space elsewhere.",
+        bullets:[
+          "Pressure the puck without losing awareness of the slot.",
+          "Use your stick to contest passing lanes as well as shots.",
+          "Keep your head moving so you can track both the puck and nearby opponents.",
+          "Adjust when a teammate is pulled out of position."
+        ]
+      },
+      {
+        title:"3. Zone coverage and man-oriented coverage",
+        body:"Some teams emphasize protecting areas and passing lanes; others use more man-oriented responsibilities in particular situations. Many systems blend these ideas. It is misleading to assume every team plays one rigid scheme on every shift.",
+        bullets:[
+          "Area-oriented coverage asks who protects a space as the puck moves.",
+          "Man-oriented responsibilities emphasize tracking a particular opponent.",
+          "Switches are important when attackers cross, screen, or rotate.",
+          "Communication helps prevent two defenders from chasing one attacker while another becomes free."
+        ]
+      },
+      {
+        title:"4. Net-front battles and rebounds",
+        body:"The area in front of the goalie is dangerous because screens, deflections, and rebounds can make saves harder. Defenders may need to establish body position, tie up sticks, and locate loose pucks without losing awareness of nearby passing threats.",
+        bullets:[
+          "Finding the opponent's stick can matter as much as moving the opponent's body.",
+          "After the first shot, locate the puck and identify rebound threats.",
+          "Goalie sightlines and screens affect how much time the goalie has to react.",
+          "A clearance should be controlled when possible, rather than simply handing possession back."
+        ]
+      }
+    ],
+    takeaway:"Effective defense is coordinated: pressure the puck, protect dangerous space, track opponents, and communicate when responsibilities change.",
+    mistake:"Overcommitting to the puck can leave the slot or back door uncovered. Standing still in a zone without reacting to the play can be just as harmful.",
+    watch:"Watch the two defenders away from the puck during sustained offensive-zone possession. Notice who protects the net front, who tracks the high attacker, and how they respond when opponents rotate.",
+    question:"The puck is in the corner. One defender pressures the carrier. An opposing forward moves into the slot. What is the key defensive priority?",
+    options:[
+      "Both remaining defenders chase the puck into the corner.",
+      "Maintain support and ensure the dangerous slot area and passing options remain covered.",
+      "Every defender turns away from the puck.",
+      "Leave the slot open because the puck is below the goal line."
+    ],
+    answer:1,
+    explanation:"The corner can be less dangerous than the slot. When one defender pressures the puck, teammates must preserve coverage of high-danger space and nearby passing options. The precise assignment depends on the team's coverage rules."
+  },
+  {
+    id:"neutral",
+    title:"Neutral-Zone Entries",
+    level:"Advanced",
+    duration:"7–9 min",
+    summary:"Compare controlled entries, dump-ins, regrouping, and the support patterns that help teams attack with possession.",
+    objectives:[
+      "Distinguish a controlled entry from a dump-in.",
+      "Understand spacing and support around the puck carrier.",
+      "Recognize when a team should regroup instead of forcing an entry."
+    ],
+    sections:[
+      {
+        title:"1. Why the blue line matters",
+        body:"The attacking blue line is a tactical boundary. A team wants to enter the offensive zone without an offside violation while preserving enough spacing to create a useful attack. Defenders try to close lanes, maintain gaps, and force the puck carrier into low-value space.",
+        bullets:[
+          "A controlled entry means carrying or passing the puck into the zone with possession.",
+          "A dump-in sends the puck deep, often to make defenders retrieve it under pressure.",
+          "A regroup resets the attack when the direct route is blocked.",
+          "The best choice depends on pressure, teammate support, and the opponent's defensive shape."
+        ]
+      },
+      {
+        title:"2. Controlled entries",
+        body:"A controlled entry can preserve possession and allow the attacking team to establish a formation. The carrier needs support: teammates can provide a short passing option, drive a lane, or occupy defenders to create space.",
+        bullets:[
+          "Attack with speed when there is room to challenge the defenders' gap.",
+          "Use lateral movement or a pass to change the angle of attack.",
+          "Avoid skating into multiple defenders with no support.",
+          "Teammates must time their routes so they stay onside and remain useful options."
+        ]
+      },
+      {
+        title:"3. Dump-ins and retrievals",
+        body:"Dumping the puck can be a purposeful choice when defenders have established a strong blue-line position or the attacking team has a favorable forecheck matchup. The dump-in itself does not guarantee possession; the chase and support routes determine whether the team can recover it.",
+        bullets:[
+          "Aim for a recoverable area rather than simply giving the puck away.",
+          "The first forechecker pressures the retrieval while teammates close likely outlets.",
+          "A poorly supported dump-in can allow an easy breakout.",
+          "A controlled entry may be preferable when the defense gives up space."
+        ]
+      },
+      {
+        title:"4. Regrouping and timing",
+        body:"If defenders maintain a strong gap and the attack has no useful passing lane, a team can pull back and regroup. This may feel slower, but it can preserve possession and allow teammates to reset their spacing.",
+        bullets:[
+          "Recognize when the carrier has no safe lane.",
+          "Use support behind or beside the puck rather than forcing a low-percentage play.",
+          "Avoid premature entries that leave teammates offside.",
+          "Look for the next opportunity to attack with speed and spacing."
+        ]
+      }
+    ],
+    takeaway:"A successful entry is about more than crossing the blue line. Possession, support, timing, and the opponent's defensive shape determine whether the entry leads to sustained offense.",
+    mistake:"Dumping the puck without a realistic retrieval plan can give the opponent an easy breakout. Forcing a carry into a strong defensive gap can be equally ineffective.",
+    watch:"Track the players without the puck as a team approaches the blue line. Are they supporting the carrier, driving space, or arriving too early and risking offside?",
+    question:"Your puck carrier reaches the blue line, but defenders have a tight gap and no teammate is available for a safe pass. What is a sensible option?",
+    options:[
+      "Force a blind pass through several defenders.",
+      "Consider a deliberate dump-in with forecheck support, or regroup if a safe reset is available.",
+      "Ignore the blue line and let teammates enter whenever they want.",
+      "Stop moving and wait for the defenders to leave."
+    ],
+    answer:1,
+    explanation:"A contested blue line may call for a planned dump-in and retrieval attempt, or a regroup if possession can be retained safely. The key is choosing a play that matches the available space and support."
+  },
+  {
+    id:"powerplay",
+    title:"Power Plays and Penalty Kills",
+    level:"Advanced",
+    duration:"8–10 min",
+    summary:"Study power-play spacing, overloads, shooting lanes, penalty-kill pressure, and puck movement.",
+    objectives:[
+      "Explain the purpose of common power-play shapes.",
+      "Recognize how puck movement creates defensive rotation.",
+      "Understand the trade-off between pressure and protecting the middle on a penalty kill."
+    ],
+    sections:[
+      {
+        title:"1. The power play is a spacing problem",
+        body:"A power play has a numerical advantage, but the penalty-killing team still protects the most dangerous areas. The attacking team tries to move defenders, open passing lanes, and create shots from useful locations. Simply holding the puck does not create an advantage unless it changes the defensive shape.",
+        bullets:[
+          "Spread out to make defenders cover more space.",
+          "Move the puck to make the penalty killers shift and turn.",
+          "Use screens and net-front positioning to complicate the goalie's sightline.",
+          "Maintain puck support so a blocked pass does not immediately become a counterattack."
+        ]
+      },
+      {
+        title:"2. Overload and umbrella concepts",
+        body:"An overload places multiple attackers toward one side to create local numerical pressure. An umbrella commonly places shooters and distributors higher in the zone, with other players positioned to support puck movement and attack from different angles. These are broad concepts; teams often blend formations.",
+        bullets:[
+          "An overload can create short passing combinations near one side.",
+          "An umbrella can create high shooting options and lateral puck movement.",
+          "The net-front player can screen the goalie, redirect shots, and pursue rebounds.",
+          "A formation is useful only if players read the defense and move in coordination."
+        ]
+      },
+      {
+        title:"3. The penalty kill",
+        body:"The penalty kill aims to deny dangerous chances and waste the power play's time. Some teams emphasize a compact box; others pressure more aggressively in particular situations. The penalty killers must decide when to challenge the puck and when to protect the middle.",
+        bullets:[
+          "Protect the slot and net front.",
+          "Pressure when the puck carrier has limited time or options.",
+          "Avoid opening a seam by chasing too far from the assigned area.",
+          "Clear the puck when an appropriate opportunity appears, then recover shape."
+        ]
+      },
+      {
+        title:"4. Reading the next pass",
+        body:"A strong power play often moves the puck to make one defender choose between two threats. Watch how a pass changes the penalty killers' body orientation and spacing. The next opportunity may be a shot, a seam pass, a back-door option, or a reset to maintain possession.",
+        bullets:[
+          "Look for defenders who must turn or travel a long distance.",
+          "Notice whether a passing lane is actually open, not merely whether an attacker is visible.",
+          "A quick shot can be valuable if the goalie is screened or the rebound is supported.",
+          "A forced seam pass can create a dangerous turnover."
+        ]
+      }
+    ],
+    takeaway:"Power-play success depends on coordinated spacing, purposeful puck movement, traffic, and selecting the right moment to attack.",
+    mistake:"Passing repeatedly without moving the penalty killers wastes time. Forcing a seam pass into a closed lane can give the defending team a chance to clear.",
+    watch:"During a power play, follow the penalty killers rather than only the puck. See how the formation shifts and which defender is forced to choose between competing threats.",
+    question:"The penalty-killing formation has shifted toward the puck side, leaving a potential passing lane on the opposite side. What should the power play do?",
+    options:[
+      "Automatically fire a pass through the lane without checking whether it is open.",
+      "Recognize the possible weak-side opportunity, verify the lane, and move the puck if the pass is available.",
+      "Move all five attackers to the puck side.",
+      "Stop moving the puck for the remainder of the power play."
+    ],
+    answer:1,
+    explanation:"Moving the penalty killers can create a weak-side opportunity, but the lane must actually be available. A defender's stick, body position, or anticipation may still close it. Good decisions combine recognition with verification."
+  },
+  {
+    id:"transition",
+    title:"Transition and Odd-Man Rushes",
+    level:"Advanced",
+    duration:"8–10 min",
+    summary:"Understand turnovers, counterattacks, backchecking, defensive gaps, and choosing when to attack or recover.",
+    objectives:[
+      "Explain why the moment after a turnover is tactically important.",
+      "Recognize support responsibilities on odd-man rushes.",
+      "Understand gap control and recovery priorities."
+    ],
+    sections:[
+      {
+        title:"1. Why transitions create opportunities",
+        body:"Transition is the shift from offense to defense or defense to offense. A turnover can catch players moving in the wrong direction or leave the opponent's formation spread out. Teams try to exploit that brief imbalance before the other side recovers its structure.",
+        bullets:[
+          "After gaining possession, scan for space before the defense gets organized.",
+          "After losing possession, react quickly and identify the most dangerous opponent.",
+          "The closest player may pressure the puck while teammates protect the middle.",
+          "A rushed attack is not always better than retaining possession and resetting."
+        ]
+      },
+      {
+        title:"2. Attacking an odd-man rush",
+        body:"An odd-man rush occurs when the attack has more players than the defenders who are back in position, such as a 2-on-1 or 3-on-2. The puck carrier tries to make the defender commit while the teammate provides a credible alternative threat.",
+        bullets:[
+          "On a 2-on-1, the carrier reads the defender's stick, body position, and distance.",
+          "The supporting attacker maintains a passing lane and avoids becoming covered by the same defender.",
+          "Passing too early may let the defender intercept the puck; holding too long may remove the passing option.",
+          "A shot may be the right decision when the defender takes away the pass or the goalie gives up a favorable opportunity."
+        ]
+      },
+      {
+        title:"3. Defending the rush",
+        body:"A lone defender facing a 2-on-1 usually has to manage two threats. The defender may angle the carrier, protect a passing lane with the stick, and buy time for backchecking support. The exact approach depends on the distance to the net and the attackers' speed.",
+        bullets:[
+          "Avoid committing too early to one attacker.",
+          "Use body position and stick position to influence the available options.",
+          "Backcheckers should recover toward the most dangerous lanes, not just chase the puck.",
+          "The goalie reads the carrier and support player while managing depth and angles."
+        ]
+      },
+      {
+        title:"4. Gap control and recovery",
+        body:"Gap control is the distance and positioning a defender maintains relative to an attacker. A gap that is too large can allow a clean entry and time to make a play; a gap that is too tight can let the attacker beat the defender with speed or a move.",
+        bullets:[
+          "Read the attacker's speed, support, and available space.",
+          "Use backward skating and angle management to guide the attacker toward less dangerous space.",
+          "Teammates must recover with awareness of the middle and trailing threats.",
+          "Do not dive at the puck unless the situation makes that risk worthwhile."
+        ]
+      }
+    ],
+    takeaway:"Transition play rewards fast recognition, but speed alone is not enough. The best choice uses the available numbers, spacing, and time before the opponent recovers.",
+    mistake:"An attacker who focuses only on the puck can miss a supporting teammate. A defender who commits too early can give the carrier an easy pass or route to the net.",
+    watch:"When possession changes, immediately find the players farthest from the puck. Their first few strides often reveal whether the team is attacking, backchecking, or recovering its shape.",
+    question:"On a 2-on-1, the defender moves toward the puck carrier and leaves the passing lane open. What should the carrier consider?",
+    options:[
+      "Ignore the teammate and shoot automatically.",
+      "Use the defender's commitment to assess whether a pass creates the better chance, while accounting for the goalie and passing lane.",
+      "Stop skating until the defender returns to the middle.",
+      "Pass directly into the defender's stick."
+    ],
+    answer:1,
+    explanation:"The carrier can exploit the defender's commitment by passing if the lane and timing are right. But the pass is not automatic: the defender may recover, the goalie may take away the shot, or the carrier may have a better direct chance."
+  }
+];
+
 const zones = {
 defense:{title:"Defensive zone",text:"This is the end of the rink your team protects. Defenders try to limit dangerous chances, tie up sticks, block shooting lanes and help the team recover the puck.",tip:"Tactical idea: keep opponents away from the most dangerous areas in front of your net."},
 neutral:{title:"Neutral zone",text:"The area between the two blue lines. Teams use it to move through the rink, regroup, transition between attack and defense, and disrupt the opponent's entry.",tip:"Tactical idea: a controlled zone entry usually gives your team a better chance to keep possession."},
@@ -331,15 +851,245 @@ let qi = 0;
 let answered = false;
 let currentMode = "general";
 let dailyDone = false;
+  
+let currentLessonId = "";
+let currentLessonAnswered = false;
 
-function loadProgress() {
-  try {
-    return JSON.parse(localStorage.getItem("hockeyIQProgress")) ||
-      {xp:0,answered:0,correct:0,streak:0,lastDay:"",dailyDate:"",dailyCount:0};
-  } catch(e) {
-    return {xp:0,answered:0,correct:0,streak:0,lastDay:"",dailyDate:"",dailyCount:0};
+function renderLessons() {
+  const grid = document.getElementById("lessonGrid");
+  if (!grid) return;
+
+  const completed = progressData.completedLessons || [];
+  document.getElementById("lessonProgressText").textContent =
+    completed.length + " of " + lessons.length + " complete";
+
+  document.getElementById("lessonProgressBar").style.width =
+    (completed.length / lessons.length * 100) + "%";
+
+  grid.innerHTML = lessons.map(lesson => {
+    const isComplete = completed.includes(lesson.id);
+
+    return `
+      <article class="lesson-card">
+        <div class="lesson-meta">${lesson.level} · ${lesson.duration}</div>
+        <h3>${lesson.title}</h3>
+        <p>${lesson.summary}</p>
+        <div class="muted" style="font-size:12px">
+          ${lesson.objectives.length} learning objectives
+        </div>
+        ${isComplete
+          ? '<span class="lesson-complete">✓ LESSON COMPLETED</span>'
+          : '<span class="pill">NOT COMPLETED</span>'}
+        <button class="btn ${isComplete ? "" : "primary"}"
+          onclick="openLesson('${lesson.id}')">
+          ${isComplete ? "Review lesson" : "Start lesson"} →
+        </button>
+      </article>
+    `;
+  }).join("");
+}
+
+function backToLessons() {
+  document.getElementById("lessonDetail").style.display = "none";
+  document.getElementById("lessonLibrary").style.display = "block";
+  renderLessons();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function openLesson(id) {
+  const lesson = lessons.find(item => item.id === id);
+  if (!lesson) return;
+
+  currentLessonId = id;
+  renderLessonDetail();
+  document.getElementById("lessonLibrary").style.display = "none";
+  document.getElementById("lessonDetail").style.display = "block";
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function renderLessonDetail() {
+  const lesson = lessons.find(item => item.id === currentLessonId);
+  if (!lesson) return;
+
+  currentLessonAnswered = false;
+  const completed = progressData.completedLessons.includes(lesson.id);
+
+  const sectionsHtml = lesson.sections.map(section => `
+    <div class="lesson-section">
+      <h2>${section.title}</h2>
+      <p>${section.body}</p>
+      <ul>
+        ${section.bullets.map(item => `<li>${item}</li>`).join("")}
+      </ul>
+    </div>
+  `).join("");
+
+  document.getElementById("lessonContent").innerHTML = `
+    <div class="lesson-meta">${lesson.level} lesson · ${lesson.duration}</div>
+    <h1>${lesson.title}</h1>
+    <p class="muted">${lesson.summary}</p>
+
+    <div class="lesson-callout">
+      <b>What you'll learn</b>
+      <ul>
+        ${lesson.objectives.map(item => `<li>${item}</li>`).join("")}
+      </ul>
+    </div>
+
+    ${sectionsHtml}
+
+    <div class="lesson-callout">
+      <b>Key takeaway</b>
+      <p>${lesson.takeaway}</p>
+    </div>
+
+    <h2>Common mistake to recognize</h2>
+    <p>${lesson.mistake}</p>
+
+    <h2>What to watch for in an NHL game</h2>
+    <p>${lesson.watch}</p>
+
+    <div class="lesson-check">
+      <div class="eyebrow">APPLY WHAT YOU LEARNED</div>
+      <h2>Knowledge check</h2>
+      <p>${lesson.question}</p>
+      <div id="lessonQuestionOptions"></div>
+      <div id="lessonAnswerFeedback" class="feedback" hidden></div>
+    </div>
+
+    <div class="actions">
+      <button class="btn primary" id="completeLessonBtn"
+        onclick="completeLesson()"
+        ${completed ? "disabled" : "disabled"}>
+        ${completed ? "✓ Lesson completed" : "Complete lesson · +25 XP"}
+      </button>
+      <button class="btn" onclick="backToLessons()">Back to lessons</button>
+    </div>
+  `;
+
+  const options = document.getElementById("lessonQuestionOptions");
+
+  lesson.options.forEach((option,index) => {
+    const button = document.createElement("button");
+    button.className = "lesson-option";
+    button.textContent = String.fromCharCode(65 + index) + ". " + option;
+    button.onclick = () => answerLesson(index,button);
+    options.appendChild(button);
+  });
+}
+
+function answerLesson(choice,button) {
+  if (currentLessonAnswered) return;
+
+  const lesson = lessons.find(item => item.id === currentLessonId);
+  if (!lesson) return;
+
+  currentLessonAnswered = true;
+  const buttons = [
+    ...document.querySelectorAll("#lessonQuestionOptions button")
+  ];
+  const correct = choice === lesson.answer;
+
+  buttons.forEach((item,index) => {
+    item.disabled = true;
+    if (index === lesson.answer) item.classList.add("correct");
+  });
+
+  if (!correct) button.classList.add("wrong");
+
+  // Keep lesson attempts in the same statistics as ordinary quiz answers.
+  progressData.answered++;
+
+  if (correct) {
+    progressData.correct++;
+
+    // Award knowledge-check XP only once per lesson.
+    if (!progressData.lessonQuizAwarded[lesson.id]) {
+      progressData.xp += 10;
+      progressData.lessonQuizAwarded[lesson.id] = true;
+    }
+  }
+
+  saveProgress();
+
+  const feedback = document.getElementById("lessonAnswerFeedback");
+  feedback.hidden = false;
+  feedback.innerHTML = `
+    <b>${correct ? "✓ Correct!" : "Not quite yet."}</b>
+    <p>${lesson.explanation}</p>
+    <p class="muted">${
+      correct
+        ? (progressData.lessonQuizAwarded[lesson.id]
+            ? "Knowledge check recorded. First-time correct answers earn 10 XP."
+            : "Correct answer recorded.")
+        : "Review the explanation, then try again if you want."
+    }</p>
+  `;
+
+  // Give XP only once for getting this lesson's knowledge check right.
+  // Show a clear retry action after a wrong answer.
+  if (!correct) {
+    const retry = document.createElement("button");
+    retry.className = "btn";
+    retry.style.marginTop = "8px";
+    retry.textContent = "Try the question again";
+    retry.onclick = renderLessonDetail;
+    feedback.appendChild(retry);
+  }
+
+  const completeButton = document.getElementById("completeLessonBtn");
+  if (completeButton && !progressData.completedLessons.includes(lesson.id)) {
+    completeButton.disabled = false;
   }
 }
+
+function completeLesson() {
+  const lesson = lessons.find(item => item.id === currentLessonId);
+  if (!lesson || !currentLessonAnswered) return;
+
+  if (!progressData.completedLessons.includes(lesson.id)) {
+    progressData.completedLessons.push(lesson.id);
+    progressData.xp += 25;
+    saveProgress();
+  }
+
+  renderLessonDetail();
+  renderLessons();
+}
+
+
+function loadProgress() {
+  const defaults = {
+    xp:0,
+    answered:0,
+    correct:0,
+    streak:0,
+    lastDay:"",
+    dailyDate:"",
+    dailyCount:0,
+    completedLessons:[],
+    lessonQuizAwarded:{}
+  };
+
+  try {
+    const saved = JSON.parse(localStorage.getItem("hockeyIQProgress"));
+    if (!saved || typeof saved !== "object") return defaults;
+
+    return {
+      ...defaults,
+      ...saved,
+      completedLessons:Array.isArray(saved.completedLessons)
+        ? saved.completedLessons : [],
+      lessonQuizAwarded:
+        saved.lessonQuizAwarded &&
+        typeof saved.lessonQuizAwarded === "object"
+          ? saved.lessonQuizAwarded : {}
+    };
+  } catch(e) {
+    return defaults;
+  }
+}
+
 function saveProgress() {
   try { localStorage.setItem("hockeyIQProgress",JSON.stringify(progressData)); }
   catch(e) { console.log("Progress could not be saved in this browser."); }
@@ -363,8 +1113,15 @@ function showView(id) {
   document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
   document.getElementById(id).classList.add("active");
   window.scrollTo({top:0,behavior:"smooth"});
-  if(id==="teams") renderTeams();
-  updateDashboard();
+  
+if(id==="teams") renderTeams();
+if(id==="lessons") {
+  document.getElementById("lessonLibrary").style.display = "block";
+  document.getElementById("lessonDetail").style.display = "none";
+  renderLessons();
+}
+updateDashboard();
+
 }
 function shuffle(arr) {
   const a=[...arr];
