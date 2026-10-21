@@ -2,178 +2,521 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hockey IQ</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 40px 20px;
-      background: #0b1626;
-      color: white;
-      font-family: Arial, sans-serif;
-      text-align: center;
-    }
-
-    main {
-      max-width: 650px;
-      margin: 40px auto;
-    }
-
-    h1 {
-      color: #75caff;
-      font-size: 42px;
-    }
-
-    .card {
-      background: #172b44;
-      padding: 28px;
-      border-radius: 16px;
-      margin-top: 28px;
-    }
-
-    button {
-      display: block;
-      width: 100%;
-      padding: 14px;
-      margin: 10px 0;
-      border: 1px solid #46617d;
-      border-radius: 10px;
-      background: #233d59;
-      color: white;
-      font-size: 16px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background: #315675;
-    }
-
-    #feedback {
-      color: #75caff;
-      font-weight: bold;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hockey IQ | Learn the Game</title>
+<style>
+:root {
+  --bg:#091321; --panel:#111f31; --panel2:#192b40;
+  --line:#293d53; --blue:#70c7ff; --text:#f2f7fc;
+  --muted:#9db0c5; --green:#71dfad;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0; background:var(--bg); color:var(--text);
+  font-family:Inter,Arial,sans-serif; line-height:1.5;
+}
+button,input,select { font:inherit; }
+button { cursor:pointer; }
+header {
+  padding:17px max(20px,calc((100% - 1180px)/2));
+  display:flex; align-items:center; justify-content:space-between;
+  gap:15px; border-bottom:1px solid var(--line);
+  background:#0c1929; position:sticky; top:0; z-index:5;
+}
+.brand { font-size:21px; font-weight:900; letter-spacing:1px; }
+.brand span { color:var(--blue); }
+.header-right { color:var(--muted); font-size:13px; }
+main { max-width:1180px; margin:auto; padding:28px 20px 70px; }
+h1 { font-size:clamp(28px,5vw,43px); line-height:1.12; margin:7px 0 12px; }
+h2 { font-size:22px; margin:0 0 10px; }
+h3 { margin:0 0 7px; font-size:17px; }
+p { margin:5px 0 12px; }
+.muted { color:var(--muted); }
+.eyebrow { color:var(--blue); font-size:11px; font-weight:800; letter-spacing:2px; }
+.hero {
+  background:linear-gradient(120deg,#142c45,#101e31 65%,#173b55);
+  border:1px solid #294862; border-radius:20px; padding:28px;
+  display:grid; grid-template-columns:1.5fr 1fr; gap:22px;
+}
+.hero p { color:#b8cce0; max-width:540px; }
+.hero-stat { align-self:center; text-align:center; padding:20px; }
+.hero-stat strong { display:block; font-size:43px; color:var(--blue); }
+.btn {
+  border:1px solid #38516b; border-radius:9px; background:var(--panel2);
+  color:var(--text); padding:11px 15px; font-weight:700;
+}
+.btn:hover { border-color:var(--blue); background:#223c56; }
+.btn.primary { background:var(--blue); color:#081523; border-color:var(--blue); }
+.btn:disabled { opacity:.4; cursor:not-allowed; }
+.section-head { margin:30px 0 14px; display:flex; justify-content:space-between; gap:10px; align-items:end; }
+.grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+.card {
+  background:var(--panel); border:1px solid var(--line); border-radius:14px;
+  padding:19px; min-width:0;
+}
+.mode { cursor:pointer; transition:transform .15s,border-color .15s; }
+.mode:hover { transform:translateY(-2px); border-color:var(--blue); }
+.mode-icon { font-size:29px; margin-bottom:10px; }
+.mode p { color:var(--muted); font-size:13px; margin-bottom:0; }
+.pill {
+  display:inline-block; border:1px solid var(--line); border-radius:30px;
+  padding:4px 9px; color:var(--muted); font-size:11px; margin-bottom:12px;
+}
+.progress { height:7px; background:#29394b; border-radius:8px; overflow:hidden; }
+.progress div { height:100%; background:var(--blue); width:0; transition:width .2s; }
+.stats { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:15px; }
+.stat { background:#0c1929; padding:13px; border-radius:10px; }
+.stat strong { display:block; font-size:23px; }
+.stat span { color:var(--muted); font-size:12px; }
+.view { display:none; }
+.view.active { display:block; }
+.toolbar { display:flex; gap:9px; flex-wrap:wrap; margin:17px 0; }
+.question { font-size:22px; font-weight:750; margin:8px 0 19px; }
+.answers { display:grid; gap:10px; }
+.answer {
+  background:#142438; border:1px solid #324960; color:var(--text);
+  padding:13px 15px; text-align:left; border-radius:10px; width:100%;
+}
+.answer:hover { border-color:var(--blue); }
+.answer.correct { border-color:var(--green); background:#12362f; }
+.answer.wrong { border-color:#ff8d91; background:#40232d; }
+.feedback { margin-top:15px; padding:13px; border-radius:9px; background:#0b1928; }
+.actions { display:flex; gap:10px; margin-top:18px; flex-wrap:wrap; }
+.two-col { display:grid; grid-template-columns:1fr 1fr; gap:15px; }
+.player-layout { display:grid; grid-template-columns:minmax(180px,.8fr) 1.2fr; gap:20px; align-items:center; }
+.player-photo {
+  background:radial-gradient(ellipse,#274661,#0c1828);
+  border:1px solid var(--line); border-radius:13px; min-height:230px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  overflow:hidden; padding:12px; text-align:center;
+}
+.player-photo img { width:100%; max-width:210px; height:205px; object-fit:contain; }
+.jersey { font-size:48px; font-weight:900; color:var(--blue); }
+.rink {
+  width:100%; max-width:720px; display:block; margin:18px auto;
+  background:#dcebf1; border-radius:50px; border:4px solid #fff;
+}
+.rink-zone { cursor:pointer; transition:fill .15s; }
+.rink-zone:hover { fill:#91d9f7; }
+.zone-btn { margin:4px; }
+.team-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
+.team {
+  background:var(--panel); border:1px solid var(--line); border-radius:10px;
+  padding:12px; cursor:pointer; text-align:left; color:var(--text);
+}
+.team:hover { border-color:var(--blue); }
+.team b { display:block; font-size:13px; }
+.team small { color:var(--muted); }
+input,select {
+  color:var(--text); background:var(--panel2); border:1px solid var(--line);
+  border-radius:8px; padding:10px; max-width:100%;
+}
+footer { text-align:center; color:var(--muted); font-size:12px; margin-top:35px; }
+.back { margin-bottom:20px; }
+@media(max-width:720px) {
+  main { padding:19px 13px 45px; }
+  header { padding:14px; }
+  .hero,.player-layout,.two-col { grid-template-columns:1fr; }
+  .hero-stat { padding:4px; }
+  .grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; }
+  .card { padding:14px; }
+  .team-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .question { font-size:19px; }
+}
+@media(max-width:390px) { .grid { grid-template-columns:1fr; } }
+</style>
 </head>
 <body>
-  <main>
-    <h1>HOCKEY IQ</h1>
-    <p>Your journey to understanding hockey starts here.</p>
-
-    <section class="card">
-      <p id="progress">QUESTION 1</p>
-      <h2 id="question">Which position does Connor McDavid play?</h2>
-
-      <div id="answers">
-        <button onclick="answer(0)">Defenseman</button>
-        <button onclick="answer(1)">Center</button>
-        <button onclick="answer(2)">Goaltender</button>
-        <button onclick="answer(3)">Left wing</button>
+<header>
+  <div class="brand">🏒 HOCKEY <span>IQ</span></div>
+  <div class="header-right">YOUR PERSONAL HOCKEY ACADEMY</div>
+</header>
+<main>
+  <section id="home" class="view active">
+    <div class="hero">
+      <div>
+        <div class="eyebrow">YOUR HOCKEY JOURNEY STARTS HERE</div>
+        <h1>Know the game.<br>Think the game.</h1>
+        <p>Learn NHL players, equipment, teams, tactics and the little details that make you a smarter hockey fan.</p>
+        <button class="btn primary" onclick="startQuiz('daily')">Start today's challenge →</button>
       </div>
+      <div class="hero-stat">
+        <strong id="heroXP">0 XP</strong>
+        <span class="muted">Your hockey knowledge, one lesson at a time.</span>
+        <div class="stats">
+          <div class="stat"><strong id="statAnswered">0</strong><span>Answered</span></div>
+          <div class="stat"><strong id="statAccuracy">—</strong><span>Accuracy</span></div>
+          <div class="stat"><strong id="statStreak">0</strong><span>Day streak</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="section-head"><div><div class="eyebrow">TRAINING CENTER</div><h2>Choose your lesson</h2></div></div>
+    <div class="grid">
+      <div class="card mode" onclick="startQuiz('players')"><div class="mode-icon">🧑‍🎤</div><h3>Guess the Player</h3><p>Identify NHL stars from headshots, jersey numbers and career clues.</p></div>
+      <div class="card mode" onclick="startQuiz('gear')"><div class="mode-icon">🧤</div><h3>Gear Detective</h3><p>Learn stick flex, skate features, gloves, helmets and equipment brands.</p></div>
+      <div class="card mode" onclick="showView('rink')"><div class="mode-icon">🏒</div><h3>Interactive Rink</h3><p>Explore the ice, learn the zones and understand positioning.</p></div>
+      <div class="card mode" onclick="showView('teams')"><div class="mode-icon">🛡️</div><h3>Team Explorer</h3><p>Explore all 32 NHL teams and their divisions and arenas.</p></div>
+      <div class="card mode" onclick="startQuiz('iq')"><div class="mode-icon">🧠</div><h3>Hockey IQ Challenges</h3><p>Read a game situation and decide what a player should do.</p></div>
+      <div class="card mode" onclick="startQuiz('daily')"><div class="mode-icon">📅</div><h3>Daily Challenge</h3><p>Ten questions across categories, with points and a daily streak.</p></div>
+    </div>
+    <div class="section-head"><div><div class="eyebrow">KEEP IMPROVING</div><h2>Your progress</h2></div></div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;gap:10px;margin-bottom:9px">
+        <span>Learning level</span><b id="levelLabel">Rookie</b>
+      </div>
+      <div class="progress"><div id="levelProgress"></div></div>
+      <p class="muted" id="levelNote">Answer questions to earn XP and level up.</p>
+      <button class="btn" onclick="resetProgress()">Reset my progress</button>
+    </div>
+  </section>
 
-      <p id="feedback"></p>
-      <button id="next" onclick="nextQuestion()" hidden>
-        Next Question →
-      </button>
-      <p id="score">Score: 0</p>
-    </section>
-  </main>
+  <section id="quiz" class="view">
+    <button class="btn back" onclick="showView('home')">← Dashboard</button>
+    <div class="eyebrow" id="quizMode">TRAINING</div>
+    <h1 id="quizTitle">Quiz</h1>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;gap:10px">
+        <span class="muted" id="qCount">Question 1</span>
+        <span class="pill" id="qCategory">NHL</span>
+      </div>
+      <div class="progress"><div id="quizProgress"></div></div>
+      <div id="playerLayout" class="player-layout" style="display:none;margin-top:16px">
+        <div class="player-photo" id="playerVisual"></div>
+        <div>
+          <div class="question" id="question"></div>
+          <div class="answers" id="answers"></div>
+        </div>
+      </div>
+      <div id="standardLayout" style="margin-top:16px">
+        <div class="question" id="questionStandard"></div>
+        <div class="answers" id="answersStandard"></div>
+      </div>
+      <div id="feedback" class="feedback" hidden></div>
+      <div class="actions">
+        <button class="btn primary" id="nextBtn" onclick="nextQuestion()" disabled>Next question →</button>
+        <button class="btn" onclick="showView('home')">Exit lesson</button>
+      </div>
+    </div>
+  </section>
 
-  <script>
-    const questions = [
-      {
-        question: "Which position does Connor McDavid play?",
-        answers: ["Defenseman", "Center", "Goaltender", "Left wing"],
-        correct: 1,
-        explanation: "McDavid is a center for the Edmonton Oilers."
-      },
-      {
-        question: "What is a hat trick?",
-        answers: [
-          "Three goals by one player in one game",
-          "Three saves in a row",
-          "Three penalties by one team",
-          "Three consecutive faceoff wins"
-        ],
-        correct: 0,
-        explanation: "A hat trick means scoring three goals in one game."
-      },
-      {
-        question: "What does a goalie wear to protect their legs?",
-        answers: [
-          "Shoulder pads",
-          "Shin guards only",
-          "Leg pads",
-          "Elbow pads"
-        ],
-        correct: 2,
-        explanation: "Goalie leg pads help protect the legs and block shots."
-      }
-    ];
+  <section id="rink" class="view">
+    <button class="btn back" onclick="showView('home')">← Dashboard</button>
+    <div class="eyebrow">TACTICAL CLASSROOM</div>
+    <h1>Explore the rink</h1>
+    <p class="muted">Select a zone on the rink to learn what happens there and how players use the space.</p>
+    <div class="card">
+      <svg class="rink" viewBox="0 0 700 330" role="img" aria-label="Interactive hockey rink">
+        <rect x="3" y="3" width="694" height="324" rx="48" fill="#edf5fa" stroke="#a6c4d4" stroke-width="4"/>
+        <path d="M350 4 V326" stroke="#cf535b" stroke-width="4"/>
+        <circle cx="350" cy="165" r="48" fill="none" stroke="#4e8cce" stroke-width="3"/>
+        <circle cx="350" cy="165" r="5" fill="#cf535b"/>
+        <path d="M120 4 A160 160 0 0 1 120 326 M580 4 A160 160 0 0 0 580 326" stroke="#cf535b" stroke-width="4" fill="none"/>
+        <path d="M165 4 V326 M535 4 V326" stroke="#397dc0" stroke-width="4"/>
+        <rect x="3" y="100" width="65" height="130" rx="4" fill="#e0a5aa" opacity=".75"/>
+        <rect x="632" y="100" width="65" height="130" rx="4" fill="#e0a5aa" opacity=".75"/>
+        <rect class="rink-zone" onclick="showZone('defense')" x="5" y="6" width="160" height="318" fill="#6bb2e6" opacity=".22"/>
+        <rect class="rink-zone" onclick="showZone('neutral')" x="166" y="6" width="368" height="318" fill="#70c7ff" opacity=".10"/>
+        <rect class="rink-zone" onclick="showZone('attack')" x="535" y="6" width="160" height="318" fill="#ef777b" opacity=".20"/>
+        <rect class="rink-zone" onclick="showZone('slot')" x="565" y="110" width="70" height="110" rx="12" fill="#e64d57" opacity=".35"/>
+        <g fill="#17334b" font-size="16" font-weight="bold" text-anchor="middle" pointer-events="none">
+          <text x="83" y="145">DEFENSIVE</text><text x="83" y="166">ZONE</text>
+          <text x="350" y="145">NEUTRAL</text><text x="350" y="166">ZONE</text>
+          <text x="616" y="145">OFFENSIVE</text><text x="616" y="166">ZONE</text>
+          <text x="600" y="188" font-size="12">SLOT</text>
+        </g>
+      </svg>
+      <div class="toolbar">
+        <button class="btn zone-btn" onclick="showZone('defense')">Defensive zone</button>
+        <button class="btn zone-btn" onclick="showZone('neutral')">Neutral zone</button>
+        <button class="btn zone-btn" onclick="showZone('attack')">Offensive zone</button>
+        <button class="btn zone-btn" onclick="showZone('slot')">The slot</button>
+      </div>
+      <div id="zoneInfo" class="feedback">
+        <b>Select a zone to begin.</b>
+        <p class="muted">The rink is divided into three main zones by two blue lines.</p>
+      </div>
+    </div>
+  </section>
 
-    let current = 0;
-    let score = 0;
-    let answered = false;
+  <section id="teams" class="view">
+    <button class="btn back" onclick="showView('home')">← Dashboard</button>
+    <div class="eyebrow">THE LEAGUE</div>
+    <h1>Team explorer</h1>
+    <p class="muted">Browse all 32 NHL teams by division. Select a team for its home arena and division.</p>
+    <div class="toolbar">
+      <input id="teamSearch" placeholder="Search teams or cities..." oninput="renderTeams()">
+      <select id="divisionFilter" onchange="renderTeams()">
+        <option value="All">All divisions</option>
+        <option>Atlantic</option><option>Metropolitan</option>
+        <option>Central</option><option>Pacific</option>
+      </select>
+    </div>
+    <div id="teamList" class="team-grid"></div>
+    <div id="teamInfo" class="card" style="margin-top:15px">
+      <h3>Pick a team</h3><p class="muted">Learn its home arena and division.</p>
+    </div>
+    <p class="muted">Team information is starter content. Check official NHL sources for recent roster, arena-name or branding changes.</p>
+  </section>
+</main>
+<footer>HOCKEY IQ · Learn a little more about the game every day.</footer>
 
-    function answer(choice) {
-      if (answered) return;
-      answered = true;
+<script>
+const teams = [
+["Anaheim Ducks","Pacific","Honda Center"],["Boston Bruins","Atlantic","TD Garden"],
+["Buffalo Sabres","Atlantic","KeyBank Center"],["Calgary Flames","Pacific","Scotiabank Saddledome"],
+["Carolina Hurricanes","Metropolitan","Lenovo Center"],["Chicago Blackhawks","Central","United Center"],
+["Colorado Avalanche","Central","Ball Arena"],["Columbus Blue Jackets","Metropolitan","Nationwide Arena"],
+["Dallas Stars","Central","American Airlines Center"],["Detroit Red Wings","Atlantic","Little Caesars Arena"],
+["Edmonton Oilers","Pacific","Rogers Place"],["Florida Panthers","Atlantic","Amerant Bank Arena"],
+["Los Angeles Kings","Pacific","Crypto.com Arena"],["Minnesota Wild","Central","Grand Casino Arena"],
+["Montreal Canadiens","Atlantic","Bell Centre"],["Nashville Predators","Central","Bridgestone Arena"],
+["New Jersey Devils","Metropolitan","Prudential Center"],["New York Islanders","Metropolitan","UBS Arena"],
+["New York Rangers","Metropolitan","Madison Square Garden"],["Ottawa Senators","Atlantic","Canadian Tire Centre"],
+["Philadelphia Flyers","Metropolitan","Xfinity Mobile Arena"],["Pittsburgh Penguins","Metropolitan","PPG Paints Arena"],
+["San Jose Sharks","Pacific","SAP Center"],["Seattle Kraken","Pacific","Climate Pledge Arena"],
+["St. Louis Blues","Central","Enterprise Center"],["Tampa Bay Lightning","Atlantic","Benchmark International Arena"],
+["Toronto Maple Leafs","Atlantic","Scotiabank Arena"],["Utah Mammoth","Central","Delta Center"],
+["Vancouver Canucks","Pacific","Rogers Arena"],["Vegas Golden Knights","Pacific","T-Mobile Arena"],
+["Washington Capitals","Metropolitan","Capital One Arena"],["Winnipeg Jets","Central","Canada Life Centre"]
+];
 
-      const q = questions[current];
-      const buttons = document.querySelectorAll("#answers button");
+const banks = {
+players:[
+{q:"Which position does Connor McDavid play?",a:["Defenseman","Center","Goaltender","Left wing"],c:1,e:"McDavid is a center for the Edmonton Oilers.",img:"https://assets.nhle.com/mugs/nhl/20252026/EDM/8478402.png",jersey:"#97",clue:"Edmonton Oilers · #97"},
+{q:"Which team does Sidney Crosby captain?",a:["Boston Bruins","Pittsburgh Penguins","Colorado Avalanche","Montreal Canadiens"],c:1,e:"Crosby has captained Pittsburgh since 2007.",jersey:"#87",clue:"Pittsburgh Penguins · #87"},
+{q:"Which player is known as 'Ovi'?",a:["Nathan MacKinnon","Auston Matthews","Alex Ovechkin","Cale Makar"],c:2,e:"Alex Ovechkin is the Washington Capitals star nicknamed Ovi.",jersey:"#8",clue:"Washington Capitals · #8"},
+{q:"Which team does Auston Matthews play for?",a:["Toronto Maple Leafs","New York Rangers","Seattle Kraken","Dallas Stars"],c:0,e:"Matthews plays center for Toronto.",jersey:"#34",clue:"Toronto Maple Leafs · #34"},
+{q:"What position does Cale Makar play?",a:["Center","Goaltender","Defenseman","Right wing"],c:2,e:"Makar is an elite offensive defenseman for Colorado.",jersey:"#8",clue:"Colorado Avalanche · #8"},
+{q:"Which team does Jack Hughes play for?",a:["New Jersey Devils","Vancouver Canucks","Detroit Red Wings","Florida Panthers"],c:0,e:"Jack Hughes plays for New Jersey.",jersey:"#86",clue:"New Jersey Devils · #86"}
+],
+gear:[
+{q:"What does a hockey stick's flex rating describe?",a:["Blade curve","Shaft stiffness","Stick length only","Grip texture"],c:1,e:"Flex measures shaft stiffness. A higher rating generally means a stiffer shaft.",clue:"STICK TECHNOLOGY"},
+{q:"Which brand makes the Vapor and Supreme hockey equipment lines?",a:["Bauer","CCM","Warrior","True"],c:0,e:"Bauer makes both Vapor and Supreme product families.",clue:"EQUIPMENT BRANDS"},
+{q:"What is the curved part at the end of a hockey stick called?",a:["Heel cap","Blade","Shaft","Butt end"],c:1,e:"The blade contacts the puck. Its curve affects puck handling and shooting.",clue:"STICK ANATOMY"},
+{q:"Why do goalies wear larger leg pads?",a:["For extra speed","To cover more of the net and protect their legs","To grip the ice","To throw the puck farther"],c:1,e:"Leg pads provide protection and help goalies block shots.",clue:"GOALTENDER GEAR"},
+{q:"What is the main purpose of a hockey helmet?",a:["Improve skating","Protect the head","Increase shot power","Keep the stick in place"],c:1,e:"A properly fitted certified helmet helps reduce head-injury risk.",clue:"PLAYER SAFETY"},
+{q:"What does a stick's kick point describe?",a:["Where the stick flexes most during a shot","The blade's color","The length of the tape","The curve of the blade only"],c:0,e:"Kick point describes the shaft's main flex area, affecting how it loads and releases energy.",clue:"STICK TECHNOLOGY"}
+],
+iq:[
+{q:"Your team loses the puck in its offensive zone. What should nearby forwards generally do first?",a:["Stop skating","Apply pressure and support the puck recovery","All skate to the bench","Ignore the puck"],c:1,e:"A quick forecheck can pressure the opponent and help your team recover possession."},
+{q:"A defenseman has the puck behind their own net and is being pressured. What is often a good option?",a:["Blindly pass through the middle","Look for a supported outlet pass or a safe route up the boards","Shoot at their own net","Drop the stick"],c:1,e:"A supported breakout helps move the puck out of danger while maintaining possession."},
+{q:"Why might a team use a player in the high slot on offense?",a:["To stay offside","To create a shooting option and support puck movement","To replace the goalie","To cause an icing automatically"],c:1,e:"The high slot can provide a shooting lane, passing option and support above the defenders."},
+{q:"Your team has a power play. Why spread players around the offensive zone?",a:["To create passing lanes and stretch the penalty kill","To avoid touching the puck","To force an icing","To leave the net empty"],c:0,e:"Spacing can open shooting lanes and create passing opportunities against the penalty-killing formation."},
+{q:"A teammate carries the puck toward you. What can you do to help?",a:["Hide behind a defender","Move into open ice as a passing option","Skate directly into your teammate","Stop watching the play"],c:1,e:"Off-puck movement creates support and gives the puck carrier another option."},
+{q:"Why do teams change lines while play is happening?",a:["To keep players fresh when a safe opportunity appears","Because substitutions are never allowed at stoppages","To change the score","To create an automatic power play"],c:0,e:"Hockey allows on-the-fly substitutions, helping teams manage fatigue and matchups."}
+],
+general:[
+{q:"How many players per team are normally on the ice at even strength, including the goalie?",a:["4","5","6","7"],c:2,e:"Normally there are six per team: five skaters and one goaltender."},
+{q:"What is a hat trick?",a:["Three goals by one player in one game","Three saves in a row","Three line changes","Three faceoff wins"],c:0,e:"A hat trick means one player scores three goals in a game."},
+{q:"What does icing generally involve?",a:["Sending the puck from behind the center red line across the opposing goal line untouched","Scoring from the blue line","Changing the goalie","Taking a faceoff"],c:0,e:"Icing is generally called when a team shoots the puck across the opposing goal line from behind the center red line and it remains untouched, subject to rule exceptions."},
+{q:"What is a power play?",a:["A team has a numerical advantage because an opponent is penalized","A special kind of goal","A goalie substitution","A type of faceoff"],c:0,e:"A power play occurs when a team has more skaters because an opponent is serving a penalty."},
+{q:"What is a shutout?",a:["A team scores no goals","A goalie allows no goals during the game","A game has no penalties","A team wins in overtime"],c:1,e:"A shutout means the opposing team scores zero goals."},
+{q:"What is a forecheck?",a:["Pressuring the opponent in their defensive zone","A goalie warm-up","A type of skate","A penalty shot"],c:0,e:"Forechecking means applying pressure in the opponent's zone to disrupt their breakout or regain the puck."},
+{q:"What is the blue line used for?",a:["Determining the offensive and defensive zones for offside","Measuring goalie height","Starting every period","Marking the bench"],c:0,e:"The blue lines divide the neutral zone from each team's end zone and are important for offside."},
+{q:"What is a one-timer?",a:["A shot taken directly from a pass without settling the puck first","A penalty lasting one minute","A single line change","A shot after a whistle"],c:0,e:"The shooter strikes the puck immediately as it arrives from a pass."}
+]
+};
 
-      if (choice === q.correct) {
-        score++;
-        document.getElementById("feedback").textContent =
-          "Correct! " + q.explanation;
-      } else {
-        document.getElementById("feedback").textContent =
-          "Not quite. " + q.explanation;
-      }
+const zones = {
+defense:{title:"Defensive zone",text:"This is the end of the rink your team protects. Defenders try to limit dangerous chances, tie up sticks, block shooting lanes and help the team recover the puck.",tip:"Tactical idea: keep opponents away from the most dangerous areas in front of your net."},
+neutral:{title:"Neutral zone",text:"The area between the two blue lines. Teams use it to move through the rink, regroup, transition between attack and defense, and disrupt the opponent's entry.",tip:"Tactical idea: a controlled zone entry usually gives your team a better chance to keep possession."},
+attack:{title:"Offensive zone",text:"The area beyond the opponent's blue line where your team tries to create scoring chances. Players use puck movement, screens, cycling and shots to challenge the goalie.",tip:"Tactical idea: make defenders move before choosing a shot or pass."},
+slot:{title:"The slot",text:"The central area in front of the net between the faceoff circles. Shots from this area are often dangerous because the shooter is close to goal.",tip:"Tactical idea: on offense, look for space here; on defense, protect the middle and clear opponents away."}
+};
 
-      buttons.forEach((button, i) => {
-        button.disabled = true;
-        if (i === q.correct) {
-          button.style.borderColor = "#75caff";
-        }
-      });
+let progressData = loadProgress();
+let activeQuestions = [];
+let qi = 0;
+let answered = false;
+let currentMode = "general";
+let dailyDone = false;
 
-      document.getElementById("score").textContent =
-        "Score: " + score;
-
-      document.getElementById("next").hidden = false;
+function loadProgress() {
+  try {
+    return JSON.parse(localStorage.getItem("hockeyIQProgress")) ||
+      {xp:0,answered:0,correct:0,streak:0,lastDay:"",dailyDate:"",dailyCount:0};
+  } catch(e) {
+    return {xp:0,answered:0,correct:0,streak:0,lastDay:"",dailyDate:"",dailyCount:0};
+  }
+}
+function saveProgress() {
+  try { localStorage.setItem("hockeyIQProgress",JSON.stringify(progressData)); }
+  catch(e) { console.log("Progress could not be saved in this browser."); }
+  updateDashboard();
+}
+function updateDashboard() {
+  document.getElementById("heroXP").textContent=progressData.xp+" XP";
+  document.getElementById("statAnswered").textContent=progressData.answered;
+  document.getElementById("statAccuracy").textContent=progressData.answered ?
+    Math.round(progressData.correct/progressData.answered*100)+"%" : "—";
+  document.getElementById("statStreak").textContent=progressData.streak;
+  const level=Math.floor(progressData.xp/100);
+  const names=["Rookie","Prospect","Pro","All-Star","Elite","Legend"];
+  const label=names[Math.min(level,names.length-1)];
+  document.getElementById("levelLabel").textContent=label;
+  document.getElementById("levelProgress").style.width=(progressData.xp%100)+"%";
+  document.getElementById("levelNote").textContent=
+    (100-progressData.xp%100)+" XP to your next level.";
+}
+function showView(id) {
+  document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  window.scrollTo({top:0,behavior:"smooth"});
+  if(id==="teams") renderTeams();
+  updateDashboard();
+}
+function shuffle(arr) {
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+function dailySeed() {
+  const s=new Date().toISOString().slice(0,10);
+  let h=0; for(let i=0;i<s.length;i++) h=(h*31+s.charCodeAt(i))>>>0;
+  return h;
+}
+function startQuiz(mode) {
+  currentMode=mode;
+  if(mode==="daily") {
+    const today=new Date().toISOString().slice(0,10);
+    const seed=dailySeed();
+    let pool=[...banks.players,...banks.gear,...banks.iq,...banks.general];
+    // The date-based seed makes the daily question order stable during this browser session.
+    let x=seed;
+    for(let i=pool.length-1;i>0;i--){
+      x=(x*1664525+1013904223)>>>0;
+      const j=x%(i+1); [pool[i],pool[j]]=[pool[j],pool[i]];
     }
+    activeQuestions=pool.slice(0,10);
+    dailyDone=progressData.dailyDate===today && progressData.dailyCount>=10;
+  } else if(mode==="players"||mode==="gear"||mode==="iq") {
+    activeQuestions=shuffle(banks[mode]);
+  } else {
+    activeQuestions=shuffle(banks.general);
+  }
+  qi=0; answered=false;
+  document.getElementById("quizTitle").textContent=
+    ({players:"Guess the Player",gear:"Gear Detective",iq:"Hockey IQ Challenges",daily:"Daily Challenge"}[mode]||"Hockey Basics");
+  document.getElementById("quizMode").textContent=
+    ({players:"PLAYER IDENTIFICATION",gear:"EQUIPMENT KNOWLEDGE",iq:"TACTICAL TRAINING",daily:"10 QUESTIONS · DAILY"}[mode]||"HOCKEY BASICS");
+  showView("quiz");
+  renderQuestion();
+}
+function renderQuestion() {
+  const q=activeQuestions[qi];
+  if(!q){finishQuiz();return;}
+  answered=false;
+  document.getElementById("qCount").textContent="Question "+(qi+1)+" of "+activeQuestions.length;
+  document.getElementById("quizProgress").style.width=(qi/activeQuestions.length*100)+"%";
+  document.getElementById("qCategory").textContent=
+    currentMode==="daily"?"DAILY MIX":currentMode.toUpperCase();
+  document.getElementById("feedback").hidden=true;
+  document.getElementById("nextBtn").disabled=true;
+  document.getElementById("nextBtn").textContent=qi===activeQuestions.length-1?"Finish quiz":"Next question →";
 
-    function nextQuestion() {
-      current++;
-      answered = false;
-
-      if (current >= questions.length) {
-        document.getElementById("progress").textContent = "QUIZ COMPLETE";
-        document.getElementById("question").textContent =
-          "You scored " + score + " out of " + questions.length + "!";
-        document.getElementById("answers").innerHTML = "";
-        document.getElementById("feedback").textContent =
-          "Keep learning and build your hockey IQ.";
-        document.getElementById("next").textContent = "Play Again";
-        document.getElementById("next").onclick = () => location.reload();
-        return;
-      }
-
-      const q = questions[current];
-
-      document.getElementById("progress").textContent =
-        "QUESTION " + (current + 1);
-      document.getElementById("question").textContent = q.question;
-      document.getElementById("feedback").textContent = "";
-      document.getElementById("next").hidden = true;
-
-      document.getElementById("answers").innerHTML =
-        q.answers.map((text, i) =>
-          `<button onclick="answer(${i})">${text}</button>`
-        ).join("");
-    }
-  </script>
+  const isPlayer=currentMode==="players";
+  document.getElementById("playerLayout").style.display=isPlayer?"grid":"none";
+  document.getElementById("standardLayout").style.display=isPlayer?"none":"block";
+  const visual=document.getElementById("playerVisual");
+  if(isPlayer) {
+    visual.innerHTML=q.img ?
+      '<img src="'+q.img+'" alt="NHL player headshot" onerror="this.style.display=\'none\'"><div class="jersey">'+(q.jersey||"🏒")+'</div><b>'+q.clue+'</b>' :
+      '<div class="jersey">'+(q.jersey||"🏒")+'</div><b>'+q.clue+'</b>';
+    document.getElementById("question").textContent=q.q;
+    renderAnswers("answers",q);
+  } else {
+    document.getElementById("questionStandard").textContent=q.q;
+    renderAnswers("answersStandard",q);
+  }
+}
+function renderAnswers(id,q) {
+  const el=document.getElementById(id);
+  el.innerHTML="";
+  q.a.forEach((answer,i)=>{
+    const b=document.createElement("button");
+    b.className="answer"; b.textContent=String.fromCharCode(65+i)+". "+answer;
+    b.onclick=()=>chooseAnswer(i,b,q,id);
+    el.appendChild(b);
+  });
+}
+function chooseAnswer(choice,button,q,id) {
+  if(answered)return;
+  answered=true;
+  const buttons=[...document.getElementById(id).querySelectorAll("button")];
+  buttons.forEach((b,i)=>{
+    b.disabled=true;
+    if(i===q.c)b.classList.add("correct");
+  });
+  const correct=choice===q.c;
+  if(!correct)button.classList.add("wrong");
+  progressData.answered++;
+  if(correct){progressData.correct++;progressData.xp+=10;}
+  if(currentMode==="daily") {
+    const today=new Date().toISOString().slice(0,10);
+    if(progressData.dailyDate!==today){progressData.dailyDate=today;progressData.dailyCount=0;}
+    progressData.dailyCount++;
+    if(progressData.dailyCount===10) updateStreak(today);
+  }
+  saveProgress();
+  const feedback=document.getElementById("feedback");
+  feedback.hidden=false;
+  feedback.innerHTML="<b>"+(correct?"✓ Correct!":"Not quite.")+"</b><p>"+q.e+"</p><p class='muted'>"+(correct?"+10 XP":"Keep going — practice makes progress.")+"</p>";
+  document.getElementById("nextBtn").disabled=false;
+}
+function updateStreak(today) {
+  const yesterday=new Date(Date.now()-86400000).toISOString().slice(0,10);
+  if(progressData.lastDay===today)return;
+  progressData.streak=progressData.lastDay===yesterday?progressData.streak+1:1;
+  progressData.lastDay=today;
+}
+function nextQuestion() {
+  if(!answered)return;
+  qi++;
+  if(qi>=activeQuestions.length){finishQuiz();return;}
+  renderQuestion();
+}
+function finishQuiz() {
+  document.getElementById("quizProgress").style.width="100%";
+  document.getElementById("qCount").textContent="Complete";
+  document.getElementById("qCategory").textContent="FINISHED";
+  document.getElementById("playerLayout").style.display="none";
+  document.getElementById("standardLayout").style.display="block";
+  document.getElementById("questionStandard").textContent="Training session complete!";
+  document.getElementById("answersStandard").innerHTML="";
+  document.getElementById("feedback").hidden=false;
+  document.getElementById("feedback").innerHTML="<b>Nice work!</b><p>You finished "+activeQuestions.length+" questions. Your progress is saved in this browser.</p>";
+  document.getElementById("nextBtn").textContent="Back to dashboard";
+  document.getElementById("nextBtn").disabled=false;
+  document.getElementById("nextBtn").onclick=()=>{document.getElementById("nextBtn").onclick=nextQuestion;showView("home");};
+}
+function showZone(key) {
+  const z=zones[key];
+  document.getElementById("zoneInfo").innerHTML="<h3>"+z.title+"</h3><p>"+z.text+"</p><p><b>"+z.tip+"</b></p>";
+}
+function renderTeams() {
+  const search=(document.getElementById("teamSearch").value||"").toLowerCase();
+  const division=document.getElementById("divisionFilter").value;
+  const filtered=teams.filter(t=>(division==="All"||t[1]===division)&&t[0].toLowerCase().includes(search));
+  document.getElementById("teamList").innerHTML=filtered.map(t=>
+    '<button class="team" onclick="selectTeam('+JSON.stringify(t[0]).replace(/"/g,'&quot;')+')"><b>'+t[0]+'</b><small>'+t[1]+' Division</small></button>'
+  ).join("");
+  if(!filtered.length)document.getElementById("teamList").innerHTML="<p>No teams match that search.</p>";
+}
+function selectTeam(name) {
+  const t=teams.find(x=>x[0]===name); if(!t)return;
+  document.getElementById("teamInfo").innerHTML="<span class='pill'>"+t[1]+" DIVISION</span><h2>"+t[0]+"</h2><p><b>Home arena:</b> "+t[2]+"</p><p class='muted'>Next step: add current roster, jersey gallery, team history and player profiles for this team.</p>";
+}
+function resetProgress() {
+  if(!confirm("Reset your Hockey IQ progress on this browser?"))return;
+  progressData={xp:0,answered:0,correct:0,streak:0,lastDay:"",dailyDate:"",dailyCount:0};
+  saveProgress();
+}
+updateDashboard();
+renderTeams();
+</script>
 </body>
 </html>
 
