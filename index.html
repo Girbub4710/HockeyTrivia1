@@ -1830,28 +1830,25 @@ function tacticDrawArrow(x1, y1, x2, y2) {
     />
   `;
 }
-
-function tacticDrawPlayer(x, y, label, index, opponent = false) {
-  const isDefensiveSystem = tacticCurrentSystem === "defense";
-
-  // Players with defined responsibilities remain interactive.
-  const isInteractive = isDefensiveSystem ? opponent : !opponent;
-
-  const selected = isInteractive && tacticSelectedPlayer === index;
+function tacticDrawPlayer(x, y, label, index, teamColor, interactive) {
+  const selected = interactive && tacticSelectedPlayer === index;
 
   return `
-    <g class="${isInteractive ? "tactic-player" : ""} ${selected ? "selected" : ""}"
-       ${isInteractive ? `data-tactic-player="${index}"` : ""}
+    <g class="${interactive ? "tactic-player" : ""} ${selected ? "selected" : ""}"
+       ${interactive ? `data-tactic-player="${index}"` : ""}
        transform="translate(${x},${y})"
-       ${isInteractive ? 'tabindex="0" role="button"' : ""}
-       aria-label="${isInteractive ? "Player " + tacticEscape(label) : "Opponent " + tacticEscape(label)}">
+       ${interactive ? 'tabindex="0" role="button"' : ""}
+       aria-label="${tacticEscape(label)}">
 
-      <circle r="21"
-        fill="${opponent ? "#c83d48" : "#1675c7"}"
+      <circle
+        r="21"
+        fill="${teamColor === "red" ? "#c83d48" : "#1675c7"}"
         stroke="white"
-        stroke-width="3"/>
+        stroke-width="3"
+      />
 
-      <text y="1"
+      <text
+        y="1"
         text-anchor="middle"
         dominant-baseline="central"
         fill="white"
@@ -1862,7 +1859,6 @@ function tacticDrawPlayer(x, y, label, index, opponent = false) {
     </g>
   `;
 }
-
 /* Render the rink */
 
 function tacticRender() {
@@ -1883,34 +1879,30 @@ function tacticRender() {
 
 const isDefensiveSystem = tacticCurrentSystem === "defense";
 
+
+// Draw opposing players
 step.opponents.forEach((position, index) => {
   markup += tacticDrawPlayer(
     position[0],
     position[1],
     "X" + (index + 1),
     index,
-    !isDefensiveSystem
+    isDefensiveSystem ? "blue" : "red",
+    false
   );
 });
 
+// Draw players whose roles we're teaching
 step.p.forEach((position, index) => {
   markup += tacticDrawPlayer(
     position[0],
     position[1],
     system.players[index][0],
     index,
-    isDefensiveSystem
+    isDefensiveSystem ? "red" : "blue",
+    true
   );
 });
-
-  step.p.forEach((position, index) => {
-    markup += tacticDrawPlayer(
-      position[0],
-      position[1],
-      system.players[index][0],
-      index
-    );
-  });
 
   markup += `
     <circle cx="${step.puck[0]}" cy="${step.puck[1]}"
