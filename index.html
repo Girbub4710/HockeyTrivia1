@@ -472,12 +472,11 @@ footer { text-align:center; color:var(--muted); font-size:12px; margin-top:35px;
   </div>
 
   <div class="tactics-legend">
-    <span>🔵 Attacking team</span>
-    <span>🔴 Defending team</span>
-    <span>⚫ Puck</span>
-    <span>➜ Movement or pass</span>
-  </div>
-
+  <span>🔵 Blue team</span>
+  <span>🔴 Red team</span>
+  <span>⚫ Puck</span>
+  <span>➜ Movement or pass</span>
+</div>
   <div class="tactics-playback">
     <button type="button" id="tacticPrev">← Previous</button>
     <button type="button" id="tacticPlay">▶ Play</button>
@@ -1833,21 +1832,31 @@ function tacticDrawArrow(x1, y1, x2, y2) {
 }
 
 function tacticDrawPlayer(x, y, label, index, opponent = false) {
-  const selected = !opponent && tacticSelectedPlayer === index;
+  const isDefensiveSystem = tacticCurrentSystem === "defense";
+
+  // Players with defined responsibilities remain interactive.
+  const isInteractive = isDefensiveSystem ? opponent : !opponent;
+
+  const selected = isInteractive && tacticSelectedPlayer === index;
 
   return `
-    <g class="${opponent ? "" : "tactic-player"} ${selected ? "selected" : ""}"
-       ${opponent ? "" : `data-tactic-player="${index}"`}
+    <g class="${isInteractive ? "tactic-player" : ""} ${selected ? "selected" : ""}"
+       ${isInteractive ? `data-tactic-player="${index}"` : ""}
        transform="translate(${x},${y})"
-       ${opponent ? "" : 'tabindex="0" role="button"'}
-       aria-label="${opponent ? "Opponent" : "Player " + tacticEscape(label)}">
+       ${isInteractive ? 'tabindex="0" role="button"' : ""}
+       aria-label="${isInteractive ? "Player " + tacticEscape(label) : "Opponent " + tacticEscape(label)}">
+
       <circle r="21"
         fill="${opponent ? "#c83d48" : "#1675c7"}"
         stroke="white"
         stroke-width="3"/>
-      <text y="1" text-anchor="middle"
+
+      <text y="1"
+        text-anchor="middle"
         dominant-baseline="central"
-        fill="white" font-size="13" font-weight="bold">
+        fill="white"
+        font-size="13"
+        font-weight="bold">
         ${tacticEscape(label)}
       </text>
     </g>
@@ -1869,11 +1878,30 @@ function tacticRender() {
     markup += tacticDrawArrow(...arrow);
   });
 
-  step.opponents.forEach((position, index) => {
-    markup += tacticDrawPlayer(
-      position[0], position[1], "X" + (index + 1), index, true
-    );
-  });
+ // Defensive-zone coverage uses reversed team colors:
+// Red = defending team, Blue = attacking team
+
+const isDefensiveSystem = tacticCurrentSystem === "defense";
+
+step.opponents.forEach((position, index) => {
+  markup += tacticDrawPlayer(
+    position[0],
+    position[1],
+    "X" + (index + 1),
+    index,
+    !isDefensiveSystem
+  );
+});
+
+step.p.forEach((position, index) => {
+  markup += tacticDrawPlayer(
+    position[0],
+    position[1],
+    system.players[index][0],
+    index,
+    isDefensiveSystem
+  );
+});
 
   step.p.forEach((position, index) => {
     markup += tacticDrawPlayer(
