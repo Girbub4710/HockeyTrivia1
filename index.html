@@ -1,1 +1,179 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hockey IQ</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 40px 20px;
+      background: #0b1626;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+
+    main {
+      max-width: 650px;
+      margin: 40px auto;
+    }
+
+    h1 {
+      color: #75caff;
+      font-size: 42px;
+    }
+
+    .card {
+      background: #172b44;
+      padding: 28px;
+      border-radius: 16px;
+      margin-top: 28px;
+    }
+
+    button {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      margin: 10px 0;
+      border: 1px solid #46617d;
+      border-radius: 10px;
+      background: #233d59;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #315675;
+    }
+
+    #feedback {
+      color: #75caff;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>HOCKEY IQ</h1>
+    <p>Your journey to understanding hockey starts here.</p>
+
+    <section class="card">
+      <p id="progress">QUESTION 1</p>
+      <h2 id="question">Which position does Connor McDavid play?</h2>
+
+      <div id="answers">
+        <button onclick="answer(0)">Defenseman</button>
+        <button onclick="answer(1)">Center</button>
+        <button onclick="answer(2)">Goaltender</button>
+        <button onclick="answer(3)">Left wing</button>
+      </div>
+
+      <p id="feedback"></p>
+      <button id="next" onclick="nextQuestion()" hidden>
+        Next Question →
+      </button>
+      <p id="score">Score: 0</p>
+    </section>
+  </main>
+
+  <script>
+    const questions = [
+      {
+        question: "Which position does Connor McDavid play?",
+        answers: ["Defenseman", "Center", "Goaltender", "Left wing"],
+        correct: 1,
+        explanation: "McDavid is a center for the Edmonton Oilers."
+      },
+      {
+        question: "What is a hat trick?",
+        answers: [
+          "Three goals by one player in one game",
+          "Three saves in a row",
+          "Three penalties by one team",
+          "Three consecutive faceoff wins"
+        ],
+        correct: 0,
+        explanation: "A hat trick means scoring three goals in one game."
+      },
+      {
+        question: "What does a goalie wear to protect their legs?",
+        answers: [
+          "Shoulder pads",
+          "Shin guards only",
+          "Leg pads",
+          "Elbow pads"
+        ],
+        correct: 2,
+        explanation: "Goalie leg pads help protect the legs and block shots."
+      }
+    ];
+
+    let current = 0;
+    let score = 0;
+    let answered = false;
+
+    function answer(choice) {
+      if (answered) return;
+      answered = true;
+
+      const q = questions[current];
+      const buttons = document.querySelectorAll("#answers button");
+
+      if (choice === q.correct) {
+        score++;
+        document.getElementById("feedback").textContent =
+          "Correct! " + q.explanation;
+      } else {
+        document.getElementById("feedback").textContent =
+          "Not quite. " + q.explanation;
+      }
+
+      buttons.forEach((button, i) => {
+        button.disabled = true;
+        if (i === q.correct) {
+          button.style.borderColor = "#75caff";
+        }
+      });
+
+      document.getElementById("score").textContent =
+        "Score: " + score;
+
+      document.getElementById("next").hidden = false;
+    }
+
+    function nextQuestion() {
+      current++;
+      answered = false;
+
+      if (current >= questions.length) {
+        document.getElementById("progress").textContent = "QUIZ COMPLETE";
+        document.getElementById("question").textContent =
+          "You scored " + score + " out of " + questions.length + "!";
+        document.getElementById("answers").innerHTML = "";
+        document.getElementById("feedback").textContent =
+          "Keep learning and build your hockey IQ.";
+        document.getElementById("next").textContent = "Play Again";
+        document.getElementById("next").onclick = () => location.reload();
+        return;
+      }
+
+      const q = questions[current];
+
+      document.getElementById("progress").textContent =
+        "QUESTION " + (current + 1);
+      document.getElementById("question").textContent = q.question;
+      document.getElementById("feedback").textContent = "";
+      document.getElementById("next").hidden = true;
+
+      document.getElementById("answers").innerHTML =
+        q.answers.map((text, i) =>
+          `<button onclick="answer(${i})">${text}</button>`
+        ).join("");
+    }
+  </script>
+</body>
+</html>
+
